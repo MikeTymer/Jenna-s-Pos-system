@@ -1,0 +1,221 @@
+{% extends "pos/base.html" %} {% block pageContent %}
+
+
+
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">Employees </h4>
+
+            <div class="mdc-list-item mdc-drawer-item">
+                <a class="mdc-drawer-link" href="{% url 'department-page' %}">
+                   <!-- <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">book</i>--> Departments
+                </a>
+            </div>
+            <div class="mdc-list-item mdc-drawer-item">
+                <a class="mdc-drawer-link" href="{% url 'position-page' %}">
+                   <!-- <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">tab</i>--> Positions
+                </a>
+            </div>
+            
+            <div class="text-start">
+                {% if perms.app.save_employee %}
+                <button class="btn btn-secondary bg-success btn-sm rounded-10" id="create_new"><i class="mdi mdi-plus"></i><span> Add New</span></button>
+
+                {% endif %}
+
+                
+                  
+            </div>
+            
+        </div>
+    </div>
+    
+</div>
+
+
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    
+    <div class="mdc-card">
+        <div class="table-responsive">
+            
+
+            <table class="table table-striped table-bordered">
+                <colgroup>
+                    <col width="5%">
+                    <col width="15%">
+                    <col width="15%">
+                    <col width="25%">
+                    <col width="15%">
+                    <col width="15%">
+                    <col width="25%">
+                    <col width="20%">
+                    <col width="20%">
+                    <col width="25%">
+                    <col width="25%">
+                   
+                    <col width="25%">
+                    <col width="20%">
+                    <col width="20%">
+
+                    
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="text-center py-1">#</th>
+                        <th class="text-center py-1">Code</th>
+                        <th class="text-center py-1">first Name</th>
+                        <th class="text-center py-1">Middle Name</th>
+                        <th class="text-center py-1">Last Name</th>
+                        <th class="text-center py-1">Gender</th>
+                        <th class="text-center py-1">Date Of Birth</th>
+                        <th class="text-center py-1">contact</th>
+                        <th class="text-center py-1">Address</th>
+                        <th class="text-center py-1">Email</th>
+                        <th class="text-center py-1">Department</th>
+                        <th class="text-center py-1">position</th>
+                      
+                        <th class="text-center py-1">Salary</th>
+                        <th class="text-center py-1">Status</th>
+                        <th class="text-center py-1">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in Employees %}
+                    <tr>
+                        <td class="px-2 py-1 text-center">{{ employee.id }}</td>
+                        <td class="px-2 py-1 text-center">{{ employee.code }}</td>
+                        <td class="px-2 py-1 text-start">{{ employee.firstname}}</td>
+                        <td class="px-2 py-1 text-start">{{ employee.middlename}}</td>
+                        <td class="px-2 py-1 text-start">{{ employee.lastname}}</td>
+                        <td class="px-2 py-1 text-start">{{ employee.gender}}</td>
+                        <td class="px-2 py-1 text-start">{{ employee.dob}}</td>
+                        <td class="px-2 py-1 text-start">{{ employee.contact}}</td>
+                        <td class="px-2 py-1 text-start">{{ employee.address}}</td>
+                        <td class="px-2 py-1 text-start">{{ employee.email}}</td>
+                        <td class="px-2 py-1 text-start">{{ employee.department_name}}</td>
+                        <td class="px-2 py-1 text-start">{{ employee.position_name}}</td>
+                    
+                      
+                        <td class="px-2 py-1 text-start">{{ employee.salary}}</td>
+
+                        <td class="px-2 py-1 text-center">
+                            {% if employee.status == 1 %}
+                            <span class="badge bg-primary rounded-pill px-3">Active</span> {% else %}
+                            <span class="badge bg-secondary rounded-pill px-3">Inactive</span> {% endif %}
+                        </td>
+                       
+                        <td class="px-2 py-1 text-center">
+                            {% if employee.image %}
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--light mdc-ripple-upgraded view-data" type="button" data-url="{{ employee.image.url }}" title="View Image of {{ employee.firstname}} {{ employee.lastname}}">
+                         
+                                <i class="material-icons">image</i>
+                            </button>
+                            {% endif %}
+                            {% if perms.app.edit_employee %}
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--light mdc-ripple-upgraded edit-data" type="button" data-id="{{ employee.pk }}" title="Edit">
+                                <i class="material-icons mdc-button__icon">edit</i>
+                            </button>
+                            {% endif %}
+                            {% if perms.app.delete_employee %}
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--danger mdc-ripple-upgraded delete-data" type="button" data-id="{{ employee.pk }}" title="Delete">
+                                <i class="material-icons mdc-button__icon">deleteoutline</i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+        </div>
+        <div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+            <div class="mdc-card py-0">
+                
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4> </h4>
+                    </div>
+                    <form method="post" enctype="multipart/form-data" action="{% url 'upload_products-page' %}">
+                        {% csrf_token %}
+                        <input type="file" name="csv_file" accept=".csv">
+                        
+                        <button type="upload_employees">Upload</button>
+                    </form>
+                    
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock pageContent %} {% block ScriptBlock %}
+<script>
+    $(function() {
+        $('#create_new').click(function() {
+            uni_modal("Add New Position", "{% url 'manage_employee-page' %}")
+        })
+        $('.edit-data').click(function() {
+            uni_modal("Edit Employee", "{% url 'manage_employee-page' %}?id=" + $(this).attr('data-id')) + $(this).data('url')
+        })
+        $('.delete-data').click(function() {
+            _conf("Are you sure to delete this Employee?", "delete_employee", [$(this).attr('data-id')])
+        })
+
+        $('.view-data').click(function() {
+            var imageUrl = $(this).data('url');
+            showImageWindow(imageUrl);
+        })
+    })
+
+    function delete_employee($id) {
+        start_loader();
+        $.ajax({
+            headers: {
+                "X-CSRFToken": '{{csrf_token}}'
+            },
+            url: "{% url 'delete_employee' %}",
+            method: "POST",
+            data: {
+                id: $id
+            },
+            dataType: "json",
+            error: err => {
+                console.log(err)
+                alert_toast("An error occurred.", 'error');
+                end_loader();
+            },
+            success: function(resp) {
+                if (typeof resp == 'object' && resp.status == 'success') {
+                    location.reload();
+                } else {
+                    alert_toast("An error occurred.", 'error');
+                    end_loader();
+                }
+            }
+        })
+    }
+
+    function showImageWindow(imageUrl) {
+        var head = $('head').clone();
+        var img = $('<img>').attr('src', imageUrl).css('max-width', '100%');
+        var body = $('<body>').css('background-color', 'unset').append(img);
+        var html = $('<html>').append(head).append(body);
+
+        var windowFeatures = 'width=800,height=400,left=300,top=200';
+        var printWindow = window.open('', '_blank', windowFeatures);
+        printWindow.document.open();
+        printWindow.document.write(html[0].outerHTML);
+        printWindow.document.close();
+
+        printWindow.onload = function() {
+            printWindow.print();
+            setTimeout(function() {
+                printWindow.close();
+            }, 8050);
+        };
+    }
+</script>
+
+{% endblock ScriptBlock %}

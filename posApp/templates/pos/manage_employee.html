@@ -1,0 +1,208 @@
+<div class="container-fluid">
+    {% if messages %}
+                    <div class="mdc-layout-grid py-1">
+                        <div class="mdc-layout-grid__inner">
+                            {% for message in messages %}
+                            <div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+                                <div class="alert alert-{{message.tags}} w-100 rounded-10 mb-0">
+                                    <div class="d-flex w-100">
+                                        <div class="col-auto flex-shrink-1 flex-grow-1">{{ message }}</div>
+                                        <div class="col-auto text-center">
+                                            <button class="btn-close btn-sm text-sm" type="button" onclick="$(this).closest('.alert').remove()"></button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+    <form action="" id="employee-form">
+        <input type="hidden" name="id" value="{% if employee.pk %}{{employee.pk}}{% endif %}">
+           <div class="form-group mb-3">
+                <label for="image" class="control-label">Image</label>
+                    <div class="input-group">
+                        <div class="custom-file">
+                            <input type="file" name="image" id="image" accept="image/*" class="custom-file-input" onchange="previewImage(event)">
+                            <label class="custom-file-label">Choose Image</label>
+                        </div>
+                    </div>
+            </div>
+        
+            {% if employee.image %}
+            <div class="form-group mb-3">
+                <label class="control-label">Current Image</label>
+                    <div class="mb-2">
+                        <img id="image-preview" src="{{ employee.image.url }}" alt="Current Image" class="img-thumbnail" style="max-width: 200px;">
+                    </div>
+            </div>
+            {% else %}
+            <div class="form-group mb-3">
+                <label class="control-label">Preview</label>
+                <div class="mb-2">
+                    <img id="image-preview" src="#" alt="Preview Image" class="img-thumbnail" style="max-width: 200px; display: none;">
+                </div>
+            </div>
+            {% endif %}
+         
+        
+        
+        <div class="form-group mb-3">
+            <div class="form-group mb-3">
+                <label for="code" class="control-label">Code</label>
+                <input type="text" name="code" id="code" class="form-control form-control-sm rounded-0" value="{% if employee.code %}{{employee.code}}{% endif %}" required>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="firstname" class="control-label">First Name</label>
+                <input type="text" name="firstname" id="firstname" class="form-control form-control-sm rounded-0" value="{% if employee.firstname %}{{employee.firstname}}{% endif %}" required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="middlename" class="control-label">Middle Name</label>
+                <input type="text" name="middlename" id="middlename" class="form-control form-control-sm rounded-0" value="{% if employee.middlename %}{{employee.middlename}}{% endif %}">
+            </div>
+            <div class="form-group mb-3">
+                <label for="lastname" class="control-label">Last Name</label>
+                <input type="text" name="lastname" id="lastname" class="form-control form-control-sm rounded-0" value="{% if employee.lastname %}{{employee.lastname}}{% endif %}" required>
+            </div>
+
+               
+            <div class="form-group mb-3">
+                <label for="gender" class="control-label">Gender</label>
+                <input type="text" name="gender" id="gender" class="form-control form-control-sm rounded-0" value="{% if employee.gender %}{{employee.gender}}{% endif %}" required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="dob" class="control-label" name="dob" id="dob">Date of B i r t h </label>
+                <br>
+               <p class= "text">{% if employee.dob %}{{ employee.dob }}{% endif %} </p>
+                <input type="date" name="dob" id="dob" class="date form-control form-control-sm rounded-0" min="1980-01-01" max="2010-12-31" pattern="\d{4}-\d{2}-\d{2}">
+            </div>
+            <div class="form-group mb-3">
+                <label for="contact" class="control-label">Contact</label>
+                <input type="text" name="contact" id="contact" class="form-control form-control-sm rounded-0 " value="{% if employee.contact %}{{ employee.contact }}{% endif %}" required>
+            </div>
+          
+            <div class="form-group mb-3">
+                <label for="name" class="control-label">Address</label>
+                <input type="text" name="address" id="address" class="form-control form-control-sm rounded-0" value="{% if employee.address %}{{employee.address}}{% endif %}" required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="email" class="control-label">Email</label>
+                <input type="text" name="email" id="email" class="form-control form-control-sm rounded-0" value="{% if employee.email %}{{employee.email}}{% endif %}" required>
+            </div>
+           
+            <div class="form-group mb-3">
+                
+                <label for="department_name" class="control-label">Department Name</label>
+                <input type="text" name="department_name" id="department_name" class="form-control form-control-sm rounded-0" value="{% if employee.department_name %}{{employee.department_name}}{% endif %}" required>
+            </div>
+
+
+            <div class="form-group mb-3">
+                <label for="position_name" class="control-label">Position Name</label>
+                <input type="text" name="position_name" id="position_name" class="form-control form-control-sm rounded-0" value="{% if employee.position_name %}{{employee.position_name}}{% endif %}" required>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="salary" class="control-label">Salary</label>
+                <input type="text" name="salary" id="salary" class="form-control form-control-sm rounded-0" value="{% if employee.salary %}{{employee.salary}}{% endif %}" required>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="status" class="control-label">Status</label>
+                <select name="status" id="status" class="form-select form-select-sm rounded-0" required>
+            {% if employee.status and employee.status == 1 %}
+            <option value="1" selected>Active</option>
+            {% else %}
+            <option value="1">Active</option>
+            {% endif %}
+
+            {% if employee.status and employee.status == 0 %}
+            <option value="0" selected>Inactive</option>
+            {% else %}
+            <option value="0">Inactive</option>
+            {% endif %}
+           </select>
+        </div>
+    </form>
+
+    </div>
+    <script>
+        $(function() {
+            $('#employee-form').submit(function(e) {
+              e.preventDefault();
+              var _this = $(this)
+              $('.error-msg').remove();
+              var el = $('<div>')
+              el.addClass("alert alert-danger error-msg")
+              el.hide()
+              if (_this[0].checkValidity() == false) {
+                _this[0].reportValidity();
+                return false;
+              }
+              start_loader();
+              $.ajax({
+                headers: {
+                  "X-CSRFToken": '{{csrf_token}}'
+                },
+                url: "{% url 'save-employee-page' %}",
+                data: new FormData($(this)[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST',
+                dataType: 'json',
+                error: error => {
+                  console.log(error)
+                  alert_toast("An error occured", 'error');
+                  end_loader();
+                  
+                },
+                success: function(resp) {
+                  if (typeof resp == 'object' && resp.status == 'success') {
+                    el.removeClass("alert alert-danger err-msg")
+                    location.reload()
+                  } else if (resp.status == 'failed' && !!resp.msg) {
+                    el.text(resp.msg)
+                  } else {
+                    el.text("An error occured", 'error');
+                    end_loader();
+                    console.error(resp);
+                  }
+                  _this.prepend(el)
+                  el.show('slow')
+                  $("html, body, .modal").scrollTop(0);
+                  end_loader()
+                }
+              })
+            })
+          })
+          
+   
+        function previewImage(event) {
+            var input = event.target;
+            var preview = document.getElementById('image-preview');
+            var label = input.nextElementSibling;
+            var file = input.files[0];
+    
+            if (file) {
+                var reader = new FileReader();
+    
+                reader.onload = function() {
+                    preview.src = reader.result;
+                    preview.style.display = 'block';
+                }
+    
+                reader.readAsDataURL(file);
+                label.innerHTML = file.name;
+            } else {
+                preview.src = '#';
+                preview.style.display = 'none';
+                label.innerHTML = 'Choose Image';
+            }
+        }
+        
+    </script>
