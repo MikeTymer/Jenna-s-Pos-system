@@ -26,9 +26,10 @@
                 <colgroup>
                     <col width="5%">
                     <col width="10%">
-                    <col width="20%">
+                    <col width="10%">
                     <col width="25%">
                     
+                    <col width="10%">
                     <col width="10%">
                     <col width="10%">
                     <col width="15%">
@@ -43,6 +44,7 @@
                         
                         <th class="text-center py-1">Quantity</th>
                         <th class="text-center py-1">Price</th>
+                        <th class="text-center py-1">Cost</th>
                         <th class="text-center py-1">Status</th>
                         <th class="text-center py-1">Action</th>
                     </tr>
@@ -57,6 +59,7 @@
                         
                         <td class="px-2 py-1 text-start">{{ product.quantity }}</td>
                         <td class="px-2 py-1 text-start">{{ product.price }}</td>
+                        <td class="px-2 py-1 text-start">{{ product.cost }}</td>
                         <td class="px-2 py-1 text-center">
                             {% if product.status == 1 %}
                             <span class="badge bg-primary rounded-pill px-3">Active</span> {% else %}
@@ -100,7 +103,7 @@
                         {% csrf_token %}
                         <input type="file" name="csv_file" accept=".csv">
                         
-                        <button type="upload_employees">Upload</button>
+                        <button type="upload_products">Upload</button>
                     </form>
                     
                 </div>

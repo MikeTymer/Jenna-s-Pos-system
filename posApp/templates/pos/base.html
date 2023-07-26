@@ -26,6 +26,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
     
     <link rel="stylesheet" href="{% static 'posAPP/assets/default/css/style.css' %}">
+
+
+
     <!-- End layout styles -->
     <link rel="shortcut icon" href="{% static 'posAPP/assets/material-admin/images/pos.png' %}" />
     <script src="{% static 'posAPP/assets/default/js/jquery-3.6.0.min.js' %}">
@@ -66,19 +69,43 @@
 <body>
     <script src="{% static 'posAPP/assets/material-admin/js/preloader.js' %}"></script>
     <div class="body-wrapper">
+
         <!-- Aside -->
         {% block navigation %} {% include "pos/navigation.html" %} {% endblock navigation %}
         <!-- Aside -->
+
+    
         <div class="main-wrapper mdc-drawer-app-content">
             <!-- Top Navigation -->
             {% block TopNavigation %} {% include "pos/TopNavigation.html" %} {% endblock TopNavigation %}
             <!-- Top Navigation -->
 
             <div class="page-wrapper mdc-toolbar-fixed-adjust">
+                
+
                 <main class="content-wrapper">
-                    
+                    {% if messages %}
+                    <div class="mdc-layout-grid py-1">
+                        <div class="mdc-layout-grid__inner">
+                            {% for message in messages %}
+                            <div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+                                <div class="alert alert-{{message.tags}} w-100 rounded-10 mb-0">
+                                    <div class="d-flex w-100">
+                                        <div class="col-auto flex-shrink-1 flex-grow-1">{{ message }}</div>
+                                        <div class="col-auto text-center">
+                                            <button class="btn-close btn-sm text-sm" type="button" onclick="$(this).closest('.alert').remove()"></button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
                     <div class="mdc-layout-grid">
                         <div class="mdc-layout-grid__inner">
+                            
                             
                             {% block pageContent %} {% endblock pageContent %}
                         </div>

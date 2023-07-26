@@ -2,8 +2,14 @@ from datetime import datetime
 from unicodedata import category
 from django.db import models
 from django.utils import timezone
+# from django.contrib.auth.models import User
+# from django.contrib.auth.models import AbstractUser
+# Create  models here.
 
-# Create your models here.
+'''
+class User(AbstractUser):
+    groups = models.ManyToManyField(User)
+    user_permissions = models.ManyToManyField('self')'''
 
 class Department(models.Model):
     department_name = models.TextField()
@@ -35,7 +41,9 @@ class Position(models.Model):
     def __str__(self):
         return self.position_name
 
+
 class Employee(models.Model):
+    #user = models.OneToOneField(User, on_delete=models.CASCADE)
     code = models.CharField(max_length=100, blank=True)
     firstname = models.TextField()
     middlename = models.TextField(blank=True, null=True)
@@ -83,6 +91,7 @@ class Products(models.Model):
     category_id = models.ForeignKey(Category, on_delete=models.CASCADE)
     name = models.TextField()
     description = models.TextField()
+    cost = models.FloatField(default=0)
     price = models.FloatField(default=0)
     status = models.IntegerField(default=1)
     quantity = models.IntegerField(default=0) 
@@ -96,9 +105,9 @@ class Products(models.Model):
         permissions = (("save_product", "can save a product"),)
 
     def __str__(self):
-        return self.code + " - " + self.name
+        return self.code + " - " + self.name 
 
-class EmployeeBulkUpload(models.Model):
+class ProductBulkUpload(models.Model):
     date_uploaded = models.DateTimeField(auto_now=True)
     csv_file = models.FileField(upload_to="products")
         
@@ -143,5 +152,6 @@ class salesItems(models.Model):
     sale_id = models.ForeignKey(Sales,on_delete=models.CASCADE)
     product_id = models.ForeignKey(Products,on_delete=models.CASCADE)
     price = models.FloatField(default=0)
+    tcost = models.FloatField(null=True, default=0)
     qty = models.FloatField(default=0)
     total = models.FloatField(default=0)

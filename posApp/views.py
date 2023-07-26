@@ -2,7 +2,7 @@ from pickle import FALSE
 from django.shortcuts import redirect, render
 from django.http import HttpResponse, HttpResponseRedirect
 from flask import jsonify
-from posApp.models import Category, Products, Sales, salesItems, Department, Position, Employee, Expences
+from posApp.models import *
 from django.db.models import Count, Sum
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -13,7 +13,8 @@ from posApp.filters import *
 from django.db import transaction
 import csv
 from django.core.files.storage import default_storage 
-                
+
+              
 # Login
 def login_user(request):
     logout(request)
@@ -34,7 +35,7 @@ def login_user(request):
         else:
             resp['msg'] = "The username or password you entered is incorrect, please try again"
     return HttpResponse(json.dumps(resp),content_type='application/json')
-
+    #return render(request, 'pos/login.html')
 #Logout
 def logout_user(request):
     logout(request)
@@ -43,6 +44,7 @@ def logout_user(request):
 # Create your views here.
 @login_required
 def home(request):
+  
     now = datetime.now()
     current_year = now.strftime("%Y")
     current_month = now.strftime("%m")
@@ -52,6 +54,9 @@ def home(request):
     employees = len(Employee.objects.all())
     departments = len(Department.objects.all())
     positions = len(Position.objects.all())
+    #cost = Sales.objects.filter(cost = id).first()
+    
+
     transaction = len(Sales.objects.filter(
         date_added__year=current_year,
         date_added__month = current_month,
@@ -62,11 +67,18 @@ def home(request):
         date_added__month = current_month,
         date_added__day = current_day
     ).all()
+    #sale_id = salesItems.objects.get(sale_id=sale_id).all()
+    today_Expences = len(Expences.objects.all())
     
-
     total_sales = sum(today_sales.values_list('grand_total',flat=True))
+    # 600000
+    tocost = 300000
+   
+    profit = total_sales - tocost
+    
     context = {
         'page_title':'Home',
+        'today_Expences': today_Expences,
         'categories' : categories,
         'products' : products,
         'employees' : employees,
@@ -74,8 +86,11 @@ def home(request):
         'positions'  : positions,
         'transaction' : transaction,
         'total_sales' : total_sales,
+        'tocost' : tocost,
+        'profit': profit,
     }
     
+    #profit = sum(today_sales.values_list('grand_total', flat=True))
     return render(request, 'pos/home.html',context)
 
 
@@ -116,7 +131,7 @@ def manage_department(request):
             department = Department.objects.filter(id=id).first()
     
     context = {
-        'department' : department  # Update the variable name to 'department'
+        'department' : department  
     }
     return render(request, 'pos/manage_department.html', context)
 
@@ -289,54 +304,74 @@ def manage_employee(request):
 @login_required
 @permission_required('employee.save_employee')
 def save_employee(request):
-    employee = Employee()
-    data = request.POST
-    resp = {'status': 'success'}
-    try:
-        employee_id = data.get('id')
-        code = data.get('code')
-        firstname = data.get('firstname')
-        middlename = data.get('middlename')
-        lastname = data.get('lastname')
-        gender = data.get('gender')
-        dob = data.get('dob')
-        contact = data.get('contact')
-        address = data.get('address')
-        email = data.get('email')
-        department_name = data.get('department_name')
-        position_name = data.get('position_name')
-        salary = data.get('salary')
-        status = data.get('status')
+    save_employee = Employee()
+    data =  request.POST
+    resp = {'status':'failed'}
+    id= ''
+    
+    if 'id' in data:
+        id = data['id']
+        code = data['code']
+        
+    if id.isnumeric() and int(id) > 0:
+        check = Employee.objects.exclude(id=id).filter(code=code).all()
+    else:
+        check = Employee.objects.filter(code=code).all()
+    if len(check) > 0 :
+        resp['msg'] = "Employee Code Already Exists in the database"
+    else:
+       
+        try:
+            image_file = request.FILES.get('image')
+            employee_id = data.get('id')
+            code = data.get('code')
+            firstname = data.get('firstname')
+            middlename = data.get('middlename')
+            lastname = data.get('lastname')
+            gender = data.get('gender')
+            dob = data.get('dob')
+            contact = data.get('contact')
+            address = data.get('address')
+            email = data.get('email')
+            department_name = data.get('department_name')
+            position_name = data.get('position_name')
+            salary = data.get('salary')
+            status = data.get('status')
 
-        image_file = request.FILES.get('image')
-
-        if employee_id and employee_id.isnumeric() and int(employee_id) > 0:
-            # Update other fields
-            employee = Employee.objects.get(id=employee_id)
-            employee.code = code
-            employee.firstname=firstname 
-            employee.middlename = middlename 
-            employee.lastname = lastname 
-            employee.gender = gender
-            employee.dob = dob
-            employee.contact = contact 
-            employee.address = address 
-            employee.email = email
-            employee.department_name= department_name
-            employee.position_name = position_name 
-            employee.salary = salary  
-            employee.status = status
            
+            if (data['id']).isnumeric() and int(data['id']) > 0 :
+           
+                save_employee = Employee.objects.get(id=employee_id)
+                save_employee.code = code
+                save_employee.firstname=firstname 
+                save_employee.middlename = middlename 
+                save_employee.lastname = lastname 
+                save_employee.gender = gender
+                save_employee.dob = dob
+                save_employee.contact = contact 
+                save_employee.address = address 
+                save_employee.email = email
+                save_employee.department_name= department_name
+                save_employee.position_name = position_name 
+                save_employee.salary = salary  
+                save_employee.status = status
+                
+             
             if image_file:
-                # Delete old image file if exists
-                if employee.image:
-                    default_storage.delete(employee.image.path)
+                 
+                # Delete old image file if exists                
+               
+                if save_employee.image:
+                    default_storage.delete(save_employee.image.path)
                 # Save new image file
-                employee.image = image_file
-
-            employee.save()
-        else:
-            employee = Employee(
+                save_employee.image = image_file
+                
+                save_employee.save()
+                
+                    
+            else:
+               
+                save_employee = Employee(
                 code=code,
                 firstname=firstname,
                 middlename=middlename,
@@ -352,21 +387,19 @@ def save_employee(request):
                 status=status
                 
             )
+                                     
+                if image_file:
+                   
+                    save_employee.image = image_file
+            
 
-            if image_file:
-                employee.image = image_file
+            save_employee.save()
+            resp['status'] = 'success'
+            messages.success(request, 'Employee Successfully saved.')
+        except:
+            resp['status'] = 'failed'
+    return HttpResponse(json.dumps(resp), content_type="application/json")
 
-            employee.save()
-
-        messages.success(request, 'Employee record successfully saved')
-        resp['status'] = 'success'
-
-    except Exception as e:
-        messages.error(request, str(e))
-        resp['status'] = str(e)
-        
-
-    return HttpResponse(json.dumps(resp), content_type="application/json") 
 
 def upload_employees(request):
     resp = {'status':''}
@@ -533,15 +566,19 @@ def test(request):
 
 #products remake
 def save_product(request):
-    save_product = Products()
+    product = Products()
+    
     data =  request.POST
     resp = {'status':'failed'}
     id= ''
     
+    image_file = request.FILES.get('image')
+    
     if 'id' in data:
         id = data['id']
     if id.isnumeric() and int(id) > 0:
-        check = Products.objects.exclude(id=id).filter(code=data['code']).all()
+        check = Products.objects.filter(code=data['code'], id=id).all()   # Products.objects.exclude(id=id).filter(code=data['code']).all()
+        
     else:
         check = Products.objects.filter(code=data['code']).all()
     if len(check) > 0 :
@@ -549,44 +586,44 @@ def save_product(request):
     else:
         category = Category.objects.filter(id = data['category_id']).first()
         
+    
         try:
-            image_file = request.FILES.get('image')
+            
             print(image_file)
-
             if (data['id']).isnumeric() and int(data['id']) > 0 :
                 print("if")
-                save_product = Products.objects.filter(id = data['id'])
-                save_product = Products.update(code=data['code'], category_id=category, name=data['name'], description = data['description'], price = float(data['price']),status = data['status'],quantity = data['quantity'])
-                print(save_product.code)
-                if image_file:
-                    print("Image Exists 1")
-                # Delete old image file if exists
+              
+                save_product = Products.objects.filter(id = data['id']).update(code=data['code'], category_id=category, name=data['name'], description = data['description'], cost = float(data['cost']),price = float(data['price']),status = data['status'],quantity = data['quantity'])
                 
-                print(save_product.image.url)
-                if save_product.image:
+                #print(save_product.code)
+                if image_file:
+                    if product.image:
+                        save_product.image = image_file 
                     
-                    print("Image Exists 2")
-                    default_storage.delete(save_product.image.path)
-                # Save new image file
-                save_product.image = image_file
-                  
-                save_product.save()
+                        save_product.save()
                 
                     
             else:
                 print("else")
-                save_product = Products(code=data['code'], category_id=category, name=data['name'], description = data['description'], price = float(data['price']),status = data['status'],quantity = data['quantity'])
-                                     
+                save_product = Products(code=data['code'], category_id=category, name=data['name'], description = data['description'],cost = float(data['cost']), price = float(data['price']),status = data['status'],quantity = data['quantity'])
+                
                 if image_file:
-                    save_product.image = image_file
-                   
-
-                save_product.save()
+                    
+                    if product.image:
+                        product.delete(product.image.path)
+                    # Save new image file
+                    
+                        save_product.image = image_file                  
+                        save_product.save()
+                    
             resp['status'] = 'success'
             messages.success(request, 'Product Successfully saved.')
-        except:
+        except Exception as e:
             resp['status'] = 'failed'
+            print(str(e))
+            messages.error(request, str(e))
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
 
 
 @login_required
@@ -602,7 +639,7 @@ def delete_product(request):
         resp['status'] = 'failed'
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
-#revised but failed csv products upload 
+#revised and working csv products upload 
 def upload_products(request):
     resp = {'status':''}
     try:
@@ -613,14 +650,15 @@ def upload_products(request):
             messages.error(request, 'Please upload a CSV file.')
         else:
             decoded_file = csv_file.read().decode('utf-8')
+            
             csv_data = csv.reader(decoded_file.splitlines(), delimiter=',')
             next(csv_data)  # Skip the header row
 
             for row in csv_data:
-                Category=Category.objects.get(name=row[1])
+                print('for')
                 Products.objects.create(
                     code=row[0],
-                    category_id=Category,
+                    category_id=Category.objects.get(name=row[1]),
                     name=row[2],
                     description=row[3],
                     price=row[4],
@@ -628,7 +666,7 @@ def upload_products(request):
                     quantity=row[6],
                    
                 )
-            
+            category_id = Category.objects.get( name = 'Category' )
             resp['status'] = 'failed'
             messages.success(request, 'Product csv data saved successfully')
 
@@ -648,8 +686,9 @@ def upload_products(request):
 def pos(request):
     products = Products.objects.filter(status = 1)
     product_json = []
+  
     for product in products:
-        product_json.append({'id':product.id, 'name':product.name, 'price':float(product.price)})
+        product_json.append({'id':product.id, 'name':product.name, 'price':float(product.price), 'cost': float(product.cost) })
     context = {
         'page_title' : "Point of Sale",
         'products' : products,
@@ -657,25 +696,27 @@ def pos(request):
     }
     # return HttpResponse('')
     return render(request, 'pos/pos.html',context)
+    
 
 @login_required
 def checkout_modal(request):
     grand_total = 0
     if 'grand_total' in request.GET:
         grand_total = request.GET['grand_total']
+    
     context = {
         'grand_total' : grand_total,
+       
     }
     return render(request, 'pos/checkout.html',context)
 
 @login_required
-
 def save_pos(request):
     resp = {'status':'failed','msg':''}
     data = request.POST
-    
     pref = datetime.now().year + datetime.now().year
     i = 1
+    cost = 30000 #data.getlist('cost[]')[i]   
     while True:
         code = '{:0>5}'.format(i)
         i += int(1)
@@ -688,49 +729,48 @@ def save_pos(request):
         sales = Sales(code=code, sub_total = data['sub_total'], tax = data['tax'], tax_amount = data['tax_amount'], grand_total = data['grand_total'], tendered_amount = data['tendered_amount'], amount_change = data['amount_change']).save()
         sale_id = Sales.objects.last().pk
         i = 0
+        
         for prod in data.getlist('product_id[]'):
-            
-            product_id = prod 
+            product_id = prod
             sale = Sales.objects.filter(id=sale_id).first()
             product = Products.objects.filter(id=product_id).first()
+            price = data.getlist('price[]')[i]        
             qty = data.getlist('qty[]')[i] 
-            price = data.getlist('price[]')[i] 
+            tcost = int(qty) * float(cost)
             total = float(qty) * float(price)
-            print({'sale_id' : sale, 'product_id' : product, 'qty' : qty, 'price' : price, 'total' : total})
-            salesItems(sale_id = sale, product_id = product, qty = qty, price = price, total = total).save()
-           # i += int(1)
             
-            for prod in data.getlist('product_id[]'):
-                product_id = prod 
-                product = Products.objects.filter(id=product_id).first()
-                qty = data.getlist('qty[]')[i]
-                q2 = int(qty) - product.quantity 
+            q2 = int(qty) - product.quantity
+            
+            
+            print({'sale_id' : sale, 'product_id' : product, 'qty' : qty,'tcost':tcost,'price' : price, 'total' : total})
+            salesItems(sale_id = sale,product_id = product,qty = qty,price = price,tcost = tcost,total = total).save()
+            i += int(1)
+            
+            
+            if product.quantity >= int(qty):
+                product.quantity -= int(qty)
                 
-                
-                if product.quantity >= int(qty):
-                    product.quantity -= int(qty)
-                    
-                    product.save()
-                    
-                else:
+                product.save()
+            else:
                     # Handle the case where the requested quantity exceeds the available quantity
-                    resp['msg'] = f"Insufficient quantity for product: {product.name}, you need {q2} more {product.name}s to make the purchase. Please add {q2} more {product.name}s to the quantity of the {product.name}s form"
-                    return HttpResponse(json.dumps(resp), content_type="application/json")
-                i += int(1)
-    
+                resp['msg'] = f"Insufficient quantity for product: {product.name}, you need {q2} more {product.name}s to make the purchase. Please add {q2} more {product.name}s to the quantity of the {product.name}s form"
+                return HttpResponse(json.dumps(resp), content_type="application/json")       
         resp['status'] = 'success'
         resp['sale_id'] = sale_id
         messages.success(request, "Sale Record has been saved.")
-    except:
+        #print("Unexpected error:", sys.exc_info()[2])
+    except Exception as e:
         resp['msg'] = "An error occured"
-        print("Unexpected error:", sys.exc_info()[0])
+        print("Unexpected error:", sys.exc_info()[1])
+        messages.error(request, str(e))
     return HttpResponse(json.dumps(resp),content_type="application/json")
 
 
 @login_required
 def salesList(request):
     sales = Sales.objects.all()
-    sq = len(Position.objects.all())
+    #tcost = len(salesItems.objects.all())
+    #sq = len(salesItems.objects.all())
     sale_data = []
     for sale in sales:
         data = {}
@@ -747,10 +787,11 @@ def salesList(request):
     context = {
         'page_title':'Sales Transactions',
         'sale_data':sale_data,
-        'sq':sq,
+        #'sq':sq,
     }
     # return HttpResponse('')
     return render(request, 'pos/sales.html',context)
+
 
 @login_required
 def receipt(request):
@@ -789,7 +830,7 @@ def delete_sale(request):
 @login_required
 def expences(request):
     queryset = Expences.objects.all()
-    expecesfilter = ExpencesFilter(request.GET, queryset=queryset)
+    expecesfilter = ExpencesFilter(request.GET, queryset=Department.objects.all())
     filtered_objects = expecesfilter.qs
     
     expences_list = queryset
@@ -814,7 +855,7 @@ def manage_expences(request):
             expence = Expences.objects.filter(id=id).first()
     
     context = {
-        'expece' : expence,
+        'expence' : expence,
         'categories' : categories
     }
     return render(request, 'pos/manage_expences.html',context)
@@ -829,30 +870,24 @@ def test(request):
 @login_required
 @permission_required('product.save_product')
 def save_expence(request):
+    
     data =  request.POST
     resp = {'status':'failed'}
-    id= ''
-    if 'id' in data:
-        id = data['id']
-    if id.isnumeric() and int(id) > 0:
-        check = Expences.objects.exclude(id=id).filter(code=data['code']).all()
-    else:
-        check = Expences.objects.filter(code=data['code']).all()
-    if len(check) > 0 :
-        resp['msg'] = "Expence Code Already Exists in the database"
-    else:
-        category = Category.objects.filter(id = data['category_id']).first()
-        try:
-            if (data['id']).isnumeric() and int(data['id']) > 0 :
-                save_expence = Expences.objects.filter(id = data['id']).update(code=data['code'], category_id=category, name=data['name'], description = data['description'], amount = float(data['amount']),quantity = data['quantity'])
-            else:
-                save_expence = Expences(code=data['code'], category_id=category, name=data['name'], description = data['description'], amount = float(data['amount']),quantity = data['quantity'])
-                save_expence.save()
-            resp['status'] = 'success'
-            messages.success(request, 'Expence Successfully saved.')
-        except:
-            resp['status'] = 'failed'
-    return HttpResponse(json.dumps(resp), content_type="application/json")
+   
+    category = Category.objects.filter(id=data['category_id']).first()
+    if not category:
+        raise Exception('Invalid category_id')
+    try:
+        if (data['id']).isnumeric() and int(data['id']) > 0 :
+            save_expence = Expences.objects.filter(id = data['id']).update(category_id=category, name=data['name'], description = data['description'], amount = float(data['amount']),quantity = data['quantity'])
+        else:
+            save_expence = Expences(category_id=category, name=data['name'], description = data['description'], amount = float(data['amount']),quantity = data['quantity'])
+            save_expence.save()
+        resp['status'] = 'success'
+        messages.success(request, 'Expence Successfully saved.')
+    except:
+        resp['status'] = 'failed'
+    return HttpResponse(json.dumps(resp), content_type="application/json")  
 
 @login_required
 @permission_required('product.delete_product')
@@ -866,4 +901,46 @@ def delete_expence(request):
     except:
         resp['status'] = 'failed'
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
+
+'''
+def salesList(request):
+    sales = Sales.objects.all()
+    sq = len(Position.objects.all())
+    sale_data = []
+    for sale in sales:
+        data = {}
+        for field in sale._meta.get_fields(include_parents=False):
+            if field.related_model is None:
+                data[field.name] = getattr(sale,field.name)
+        data['items'] = salesItems.objects.filter(sale_id = sale).all()
+        data['item_count'] = len(data['items'])
+        if 'tax_amount' in data:
+            data['tax_amount'] = format(float(data['tax_amount']),'.2f')
+        # print(data)
+        sale_data.append(data)
+    # print(sale_data)
+    context = {
+        'page_title':'Sales Transactions',
+        'sale_data':sale_data,
+        'sq':sq,
+    }
+    # return HttpResponse('')
+    return render(request, 'pos/sales.html',context)
+'''
+
+
+# charts and analytics
+
+def product_chart(request):
+    products = Product.objects.all()
+    chart = chartit.BarChart(
+        title="Products vs. Prices",
+        x_axis_title="Products",
+        y_axis_title="Prices",
+        data=[
+            (product.name, product.price) for product in products
+        ],
+    )
+    return render(request, "chart.html", {"chart": chart})
 

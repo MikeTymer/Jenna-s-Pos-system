@@ -23,9 +23,7 @@
                 <button class="btn btn-secondary bg-success btn-sm rounded-10" id="create_new"><i class="mdi mdi-plus"></i><span> Add New</span></button>
 
                 {% endif %}
-
-                
-                  
+            
             </div>
             
         </div>
@@ -137,7 +135,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <h4> </h4>
                     </div>
-                    <form method="post" enctype="multipart/form-data" action="{% url 'upload_products-page' %}">
+                    <form method="post" enctype="multipart/form-data" action="{% url 'upload_employees-page' %}">
                         {% csrf_token %}
                         <input type="file" name="csv_file" accept=".csv">
                         
@@ -154,7 +152,7 @@
 <script>
     $(function() {
         $('#create_new').click(function() {
-            uni_modal("Add New Position", "{% url 'manage_employee-page' %}")
+            uni_modal("Add New Employee", "{% url 'manage_employee-page' %}")
         })
         $('.edit-data').click(function() {
             uni_modal("Edit Employee", "{% url 'manage_employee-page' %}?id=" + $(this).attr('data-id')) + $(this).data('url')

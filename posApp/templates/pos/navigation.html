@@ -1,12 +1,18 @@
 {% load static %}
 <!-- partial:partials/_sidebar.html -->
+<header class="header" id="header">
+    <div class="header_toggle"> <i class='bx bx-menu' id="header-toggle"></i> </div>
+</header>
 
-<aside class="mdc-drawer mdc-drawer--dismissible mdc-drawer--open bg-dark bg-gradient " >
+
+<aside class="l-navbar mdc-drawer mdc-drawer--dismissible mdc-drawer--open bg-dark bg-gradient " id="nav-bar">
     
+   
         
-
+         
     
-    <div class="mdc-drawer__header border-bottom border-light ">
+    
+    <div class='mdc-drawer__header border-bottom border-light bx bx-grid-alt nav_icon'>
         <i
         data-mdb-toggle="animation"
         data-mdb-animation-start="onScroll"
@@ -15,7 +21,7 @@
         class="fas fa-car-side fa-3x"
         >
         <h3 class="text-center"> 
-            <img src="static/posAPP/assets/material-admin/images/pos.png" width="160" height="150" >
+            <img src="static/posAPP/assets/material-admin/images/the new one.png" width="220" height="150" >
         </h3>
             <a class="mdc-drawer__brand" href="#">
             
@@ -24,12 +30,12 @@
 
     </div>
     
-    
-    <div class="mdc-drawer__content">
+ 
+    <div class="nav_list mdc-drawer__content border-bottom border-light bx bx-grid-alt">
         <div class="mdc-list-group">
             <nav class="mdc-list mdc-drawer-menu">
                 <div class="mdc-list-item mdc-drawer-item">
-                    <a class="mdc-drawer-link" href="{% url 'home-page' %}">
+                    <a class="mdc-drawer-link" href="{% url 'home-page' %} ">
                         <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">home</i> Dashboard
                     </a>
                 </div>
@@ -50,7 +56,7 @@
                 </div>
                 <div class="mdc-list-item mdc-drawer-item">
                     <a class="mdc-drawer-link" href="{% url 'expence-page' %}">
-                        <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">label</i> Expences
+                        <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">list</i> Expences
                     </a>
                 </div>
                
@@ -66,8 +72,12 @@
                 </div>
                 
             </nav>
+            
         </div>
+        
     </div>
+    
+    
 </aside>
 
 

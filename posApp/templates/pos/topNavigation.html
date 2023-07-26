@@ -1,11 +1,19 @@
 {% load static %}
 <!-- partial:partials/_navbar.html -->
+
 <header class="mdc-top-app-bar border-bottom shadow  bg-dark px-0 py-3">
     
     <div class=" mdc-top-app-bar__row">
-        <div class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start sidebar-toggler">
-            <img src="static/posAPP/assets/material-admin/images/POS.png" class="h-8" alt="...">
-        </div>
+       
+           
+            <div class="hamburger-wrapper bg-dark flex-center mdc-top-app-bar__section--align-start sidebar-toggler ">
+                <div id="top" class="hamburger-line ease-transition "></div>
+                <div id="middle" class="hamburger-line ease-transition"></div>
+                <div id="bottom" class="hamburger-line ease-transition"></div>
+            </div>
+               
+           
+        
         <div class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end mdc-top-app-bar__section-right">
             <div class="menu-button-container menu-profile d-none d-md-block">
                 
@@ -30,7 +38,7 @@
                 <div class="mdc-menu mdc-menu-surface bg-dark" tabindex="-1">
                     <ul class="mdc-list " role="menu" aria-hidden="true" aria-orientation="vertical">
                         <li class="mdc-list-item" role="menuitem">
-                            <a class="text-white bd-dark" href="{% url 'redirect-admin' %}">
+                        <a class="text-white bd-dark" href="{% url 'redirect-admin' %}">
                                 <div class="item-thumbnail item-thumbnail-icon-only">
                                     <i class="mdi mdi-settings-outline text-white"></i>
                                 </div>
@@ -39,7 +47,7 @@
                                         Admin
                                     </h6>
                                 </div>
-                            </a>
+                            </a> 
                         </li>
                         <li class="mdc-list-item" role="menuitem">
                             <a class="text-white bd-dark" href="{% url 'logout' %}">
@@ -60,3 +68,66 @@
     
 </header>
 <!-- partial -->
+<style>
+    .navigation {
+        height: 100vh;
+        width: 100%;
+        border: 1px solid black;
+      }
+      
+      .flex-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      .hamburger-wrapper {
+        width: 100px;
+        height: 90px;
+        flex-direction: column;
+        background: #4b4e6d;
+        border-radius: 50%;
+        margin: auto;
+      }
+      
+      .hamburger-line {
+        width: 50%;
+        border: 2px solid #ffffff;
+        margin: 3px;
+      }
+      
+      .top-line-animate {
+        transform: translate(10px, 10px) rotate(60deg);
+      }
+      
+      .middle-line-animate {
+        opacity: 0;
+      }
+      
+      .bottom-line-animate {
+        transform: translate(10px, -15px) rotate(-60deg);
+      }
+      
+      .ease-transition {
+        transition: all 0.5s ease;
+      }
+      
+
+</style>
+
+<script>
+
+    var navBtn = document.querySelector(".hamburger-wrapper");
+
+    const animateLines = () => {
+      document.querySelector("#top").classList.toggle("top-line-animate");
+      document.querySelector("#middle").classList.toggle("middle-line-animate");
+      document.querySelector("#bottom").classList.toggle("bottom-line-animate");
+    };
+    
+    navBtn.addEventListener("click", () => {
+      animateLines();
+    });
+    
+
+</script>

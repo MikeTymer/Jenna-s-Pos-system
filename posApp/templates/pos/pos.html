@@ -1,21 +1,22 @@
 {% extends "pos/base.html" %} {% block pageContent %}
-<!--<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
-    <div class="mdc-card py-2">
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card bg-dark">
         <div class="d-flex justify-content-between align-items-center">
-            <h4 class="card-title mb-0">Point of Sales</h4>
+            <h1 class=" mb-1  text-light">POS</h1>
         </div>
     </div>
 </div>
--->
+
 <div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
-    <div class="mdc-card">
+    <div class="mdc-card bg-dark">
         <form action="" id="pos-form">
-            <fieldset>
-                <legend>Sell your products</legend>
+            <fieldset  >
+                <legend ><h1 class=" text-light" >Sell your products</h1></legend>
+                
                 <div class="row align-items-end">
                     <div class="col-lg-5 col-md-5 col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="product-id">Select Product</label>
+                            <label for="product-id "><h4 class ="text-light" >Select Product</h4></label>
                             <select id="product-id" class="form-select form-select-sm">
                                 <option value="" disabled selected></option>
                                 {% for product in products %}
@@ -26,13 +27,13 @@
                     </div>
                     <div class="col-lg-3 col-md-5 col-md-12">
                         <div class="form-group mb-3">
-                            <label for="product-qty">Qty</label>
+                            <label for="product-qty"><h4 class ="text-light" >Qty</h4></label>
                             <input type="number" class="form-control form-control-sm text-center" step="any" id="product-qty" value="1">
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-2 col-md-12">
                         <div class="form-group mb-3">
-                            <button class="btn btn-light btn-sm bg-gradient border rounded-0 text-start" type="button" id="add_item"><i class="mdi mdi-plus"></i> Add Item</button>
+                            <button class="btn btn-light btn-sm bg-gradient border rounded-0 text-start btn btn-outline-primary btn-lg btn-block" type="button" id="add_item"><i class="mdi mdi-plus"></i> Add Item</button>
                         </div>
                     </div>
 
@@ -40,7 +41,7 @@
             </fieldset>
             <fieldset>
                 <div class="d-flex w-100" id="POS-field">
-                    <div class="col-8 bg-gradient bg-light border h-100">
+                    <div class="col-8 bg-gradient bg-light border h-100 rounded-100">
                         <table class="table table-bordered">
                             <colgroup>
                                 <col width="5%">
@@ -50,7 +51,7 @@
                                 <col width="20%">
                             </colgroup>
                             <thead>
-                                <tr class="bg-dark bg-gradient bg-opacity-50 text-light">
+                                <tr class="bg-dark bg-gradient bg-opacity-10 text-light border rounded-100">
                                     <th class="py-1 px-2 text-center  text-light"></th>
                                     <th class="py-1 px-2 text-center  text-light">QTY</th>
                                     <th class="py-1 px-2 text-center  text-light">Product</th>
@@ -62,13 +63,13 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="col-4 bg-gradient bg-dark bg-opacity-50 border h-100">
+                    <div class="col-4 bg-dark bg-opacity-10 border h-100 border rounded-10">
                         <div class="col-12 py-4 px-2">
                             <dl>
                                 <dt class="h4 fw-bold text-light">Sub Total</dt>
                                 <dd class="text-end py-1 px-2 rounded-0 bg-light">
                                     <input type="hidden" name="sub_total" value="0">
-                                    <span class="h3 fw-bold" id="sub_total">0.00</span>
+                                    <span class="h3 fw-bold" id="sub_total">0</span>
                                 </dd>
                                 <dt class="h4 fw-bold text-light">Tax Inclusive (%)</dt>
                                 <dd>
@@ -86,6 +87,7 @@
                                     <input type="hidden" name="amount_change" value="0">
                                     <input type="hidden" name="grand_total" value="0">
                                     <input type="hidden" name="grand_total" value="0">
+                                 
                                     <span class="h3 fw-bold" id="grand_total">0.00</span>
                                 </dd>
                             </dl>
@@ -96,7 +98,7 @@
             <div class="row">
                 <div class="col-md-12 text-end">
                     
-                    <button class="btn btn-primary bg-gradient btn-sm rounded-0" type="button" id="check_out"><i class="mdi mdi-save"></i> Checkout</button>
+                    <button class="btn btn-outline-primary btn-lg btn-block" type="button" id="check_out"><i class="mdi mdi-save"></i> Checkout</button>
                 </div>
                 
             </div>
@@ -157,7 +159,7 @@
     }
     $(function() {
         $('#product-id').select2({
-            placeholder: "Please Select Product here",
+            placeholder: "Select all the proucts you want to sell here",
             width: '100%'
         })
         $('#add_item').click(function() {
@@ -178,6 +180,7 @@
                 tr.find('[name="qty[]"]').val(qty)
                 tr.find('[name="product_id[]"]').val(id)
                 tr.find('[name="price[]"]').val(data.price)
+                
                 tr.find('.product_name').text(data.name)
                 tr.find('.product_price').text(parseFloat(data.price).toLocaleString('en-US'))
                 tr.find('.product_total').text(parseFloat(data.price * qty).toLocaleString('en-US'))

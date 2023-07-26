@@ -59,10 +59,14 @@
             <div class="form-group mb-3">
                 <label for="description" class="control-label">Description</label>
                 <textarea  name="description" id="description" class="form-control " required>
-                    {{product.description}}
+                    {% if product.description %}{{product.description}}{% endif %}
                 </textarea> 
 
               
+            </div>
+            <div class="form-group mb-3">
+                <label for="cost" class="control-label">Cost</label>
+                <input type="num" name="cost" id="cost" class="form-control form-control-sm rounded-0" value="{% if product.cost %}{{product.cost}}{% endif %}" required>
             </div>
             <div class="form-group mb-3">
                 <label for="price" class="control-label">price</label>
