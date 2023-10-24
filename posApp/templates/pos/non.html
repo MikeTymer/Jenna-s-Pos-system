@@ -1,0 +1,106 @@
+{% extends "pos/base.html" %} {% load humanize %} {% block pageContent %}
+<!--charts -->
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div id="chart_sales_analysis_graph" class="chrt_container">
+    <div class="chrt_flex">
+    <h3>Sales graph</h3>
+
+    <form class="stateform" action="." method="POST" enctype="multipart/form-data">
+    <input id="load_on_change" title="Load on change" checked="" type="checkbox" wfd-id="id1">⇒&nbsp;
+    <input type="hidden" name="csrfmiddlewaretoken" value="DMYTWDrjHiVesIjHX2COxc1UQqro0xvXReqQn7pTsl8FAmei8v6Pi1TYBQEqsT4g" wfd-id="id2">
+
+        
+        <input type="hidden" name="graph_key" value="sales_analysis_graph" class="hidden_graph_key" wfd-id="id3">
+
+        
+        Operation:
+        
+        <select name="select_box_operation" class="chart-input">
+    <option value="Count">Count</option>
+
+    <option value="Sum">Sum</option>
+
+    <option value="Avg">Avgerage</option>
+
+    <option value="StdDev" selected="">StdDev</option>
+
+    </select>
+
+        
+        Scale:
+        
+        <select name="select_box_interval" class="chart-input">
+    <option value="hours">Hours</option>
+
+    <option value="days" selected="">Days</option>
+
+    <option value="weeks">Weeks</option>
+
+    <option value="months">Months</option>
+
+    <option value="quarters">Quarters</option>
+
+    <option value="years">Years</option>
+
+    </select>
+
+        
+        Chart:
+        
+        <select name="select_box_chart_type" class="chart-input select_box_chart_type">
+    <option value="discreteBarChart" selected="">Bar</option>
+
+    <option value="lineChart">Line</option>
+
+    <option value="multiBarChart">Multi Bar</option>
+
+    </select>
+
+        
+        Since:
+        
+        <input type="date" name="time_since" value="2023-08-27" class="chart-input select_box_date_since" required="" wfd-id="id4">
+
+        
+        Until:
+        
+        <input type="date" name="time_until" value="2023-09-03" class="chart-input select_box_date_until" required="" wfd-id="id5">
+
+    &nbsp;<button class="reload" id="reload" title="reload values from unfinished periods" type="button" style="font-size:14px">⟳</button>
+
+    &nbsp;<button class="reload" id="reload_all" title="reload all visible values" type="button" style="font-size:14px">⟳ all</button>
+
+    &nbsp;<a href="/admin_tools_stats/analytics/?show=sales_analysis_graph" target="_blank">analytics</a>
+    </form>
+
+    <div id="chart_container_sales_analysis_graph" class="chrt_svg_container"><svg style="width:100%;height:400px" class="nvd3-svg" height="450"><g class="nvd3 nv-wrap nv-lineChart" transform="translate(60,30)"><g><g class="nv-legendWrap nvd3-svg" transform="translate(0,-30)"><g class="nvd3 nv-legend" transform="translate(0,5)"><g transform="translate(1158.96875,5)"><g class="nv-series" transform="translate(0,5)"><circle class="nv-legend-symbol" r="5" style="stroke-width: 2; fill: rgb(31, 119, 180); fill-opacity: 1; stroke: rgb(31, 119, 180);"></circle><text text-anchor="start" class="nv-legend-text" dy=".32em" dx="8" fill="#000">Serie 1</text></g></g></g></g><g class="nv-focus"><g class="nv-background"><rect width="1229" height="350"></rect></g><g class="nv-x nv-axis nvd3-svg" transform="translate(0,350)"><g class="nvd3 nv-wrap nv-axis"><g><g class="tick" transform="translate(290.18055555555554,0)" style="opacity: 1;"><line y2="-350" x2="0"></line><text y="7" dy=".71em" transform="translate(0,0)" style="text-anchor: middle;" x="0">31 Aug 2023</text></g><g class="tick" transform="translate(645.7939814814814,0)" style="opacity: 1;"><line y2="-350" x2="0"></line><text y="7" dy=".71em" transform="translate(0,0)" style="text-anchor: middle;" x="0">01 Sep 2023</text></g><g class="tick" transform="translate(1001.4074074074074,0)" style="opacity: 1;"><line y2="-350" x2="0"></line><text y="7" dy=".71em" transform="translate(0,0)" style="text-anchor: middle;" x="0">03 Sep 2023</text></g><path class="domain" d="M0,0V0H1229V0"></path><text class="nv-axislabel" text-anchor="middle" y="36" x="614.5"></text></g><g class="nv-axisMaxMin nv-axisMaxMin-x nv-axisMin-x" transform="translate(0,0)"><text dy=".71em" y="7" transform="" style="text-anchor: middle;">30 Aug 2023</text></g><g class="nv-axisMaxMin nv-axisMaxMin-x nv-axisMax-x" transform="translate(1229,0)"><text dy=".71em" y="7" transform="" style="text-anchor: middle;">03 Sep 2023</text></g></g></g><g class="nv-y nv-axis nvd3-svg"><g class="nvd3 nv-wrap nv-axis"><g><g class="tick zero" transform="translate(0,350)" style="opacity: 1;"><line x2="1229" y2="0"></line><text x="-3" dy=".32em" opacity="0" style="text-anchor: end;" y="0">0</text></g><g class="tick" transform="translate(0,283.0143540669857)" style="opacity: 1;"><line x2="1229" y2="0"></line><text x="-3" dy=".32em" opacity="1" style="text-anchor: end;" y="0">20,000</text></g><g class="tick" transform="translate(0,216.0287081339713)" style="opacity: 1;"><line x2="1229" y2="0"></line><text x="-3" dy=".32em" opacity="1" style="text-anchor: end;" y="0">40,000</text></g><g class="tick" transform="translate(0,149.04306220095694)" style="opacity: 1;"><line x2="1229" y2="0"></line><text x="-3" dy=".32em" opacity="1" style="text-anchor: end;" y="0">60,000</text></g><g class="tick" transform="translate(0,82.05741626794259)" style="opacity: 1;"><line x2="1229" y2="0"></line><text x="-3" dy=".32em" opacity="1" style="text-anchor: end;" y="0">80,000</text></g><g class="tick" transform="translate(0,15.071770334928203)" style="opacity: 1;"><line x2="1229" y2="0"></line><text x="-3" dy=".32em" opacity="1" style="text-anchor: end;" y="0">100,000</text></g><path class="domain" d="M0,0H0V350H0"></path><text class="nv-axislabel" transform="rotate(-90)" y="-50" x="-175" style="text-anchor: middle;"></text></g><g class="nv-axisMaxMin nv-axisMaxMin-y nv-axisMin-y" transform="translate(0,350)"><text dy=".32em" y="0" x="-3" text-anchor="end" style="opacity: 1;">0</text></g><g class="nv-axisMaxMin nv-axisMaxMin-y nv-axisMax-y" transform="translate(0,0)"><text dy=".32em" y="0" x="-3" text-anchor="end" style="opacity: 1;">104,500</text></g></g></g><g class="nv-linesWrap nvd3-svg"><g class="nvd3 nv-wrap nv-line" transform="translate(0,0)"><defs><clipPath id="nv-edge-clip-22306"><rect width="1229" height="350"></rect></clipPath></defs><g clip-path="url(#nv-edge-clip-22306)"><g class="nv-groups"><g class="nv-group nv-series-0" style="stroke-opacity: 1; stroke-width: 1.5; fill-opacity: 0.5; fill: rgb(31, 119, 180); stroke: rgb(31, 119, 180);"><path class="nv-line" d="M0,350L307.25,0L614.5,350L921.75,350L1229,350"></path></g></g><g class="nv-scatterWrap nvd3-svg" clip-path="url(#nv-edge-clip-22306)"><g class="nvd3 nv-wrap nv-scatter nv-chart-22306" transform="translate(0,0)"><defs><clipPath id="nv-edge-clip-22306"><rect transform="translate( -10, -10)" width="1249" height="370"></rect></clipPath></defs><g clip-path=""><g class="nv-groups"><g class="nv-group nv-series-0" style="stroke-opacity: 1; fill-opacity: 0.5; fill: rgb(31, 119, 180); stroke: rgb(31, 119, 180);"><path class="nv-point nv-point-0" transform="translate(0,350)" d="M0,2.256758334191025A2.256758334191025,2.256758334191025 0 1,1 0,-2.256758334191025A2.256758334191025,2.256758334191025 0 1,1 0,2.256758334191025Z"></path><path class="nv-point nv-point-1" transform="translate(307.25,0)" d="M0,2.256758334191025A2.256758334191025,2.256758334191025 0 1,1 0,-2.256758334191025A2.256758334191025,2.256758334191025 0 1,1 0,2.256758334191025Z"></path><path class="nv-point nv-point-2" transform="translate(614.5,350)" d="M0,2.256758334191025A2.256758334191025,2.256758334191025 0 1,1 0,-2.256758334191025A2.256758334191025,2.256758334191025 0 1,1 0,2.256758334191025Z"></path><path class="nv-point nv-point-3" transform="translate(921.75,350)" d="M0,2.256758334191025A2.256758334191025,2.256758334191025 0 1,1 0,-2.256758334191025A2.256758334191025,2.256758334191025 0 1,1 0,2.256758334191025Z"></path><path class="nv-point nv-point-4" transform="translate(1229,350)" d="M0,2.256758334191025A2.256758334191025,2.256758334191025 0 1,1 0,-2.256758334191025A2.256758334191025,2.256758334191025 0 1,1 0,2.256758334191025Z"></path></g></g><g class="nv-point-paths"><path d="M-10,360,307.25006475590027,360,307.2500659798023,309.8608135526998,-10,31.36061284688168Z" id="nv-path-0" clip-path="url(#nv-clip-22306-0)"></path><path d="M-10,-9.999999999999996,-9.999999999999993,31.360612846986868,307.2500659798023,309.8608135526998,671.6155601927162,-9.999999999999943Z" id="nv-path-1" clip-path="url(#nv-clip-22306-1)"></path><path d="M768.1250807514291,360,768.1251084487412,-10,671.6155601927163,-10,307.2500659798023,309.8608135526998,307.25006475590027,360Z" id="nv-path-2" clip-path="url(#nv-clip-22306-2)"></path><path d="M1075.3750953344102,360,1075.3750459609348,-10,768.1251084487412,-10,768.1250807514291,360Z" id="nv-path-3" clip-path="url(#nv-clip-22306-3)"></path><path d="M1239,-10.00000000000002,1075.3750459609348,-10,1075.3750953344102,360,1239,360Z" id="nv-path-4" clip-path="url(#nv-clip-22306-4)"></path></g></g><g class="nv-point-clips"><clipPath id="nv-clip-22306-0"><circle cx="0.00006426193329314818" cy="350.000040555008" r="25"></circle></clipPath><clipPath id="nv-clip-22306-1"><circle cx="307.2500569671669" cy="0.0000035677790246091858" r="25"></circle></clipPath><clipPath id="nv-clip-22306-2"><circle cx="614.5000657122158" cy="350.00005613670567" r="25"></circle></clipPath><clipPath id="nv-clip-22306-3"><circle cx="921.7500968020059" cy="350.00007899844286" r="25"></circle></clipPath><clipPath id="nv-clip-22306-4"><circle cx="1229.0000911517957" cy="350.000037957278" r="25"></circle></clipPath></g></g></g></g></g></g><g class="nv-interactive"></g></g><g class="nv-focusWrap"></g></g></g></svg></div>
+    <br>
+    </div>
+    </div>
+
+</div>
+{% load admin_modify %}
+
+
+{% endblock pageContent %}
+
+<style>
+.loading {
+    pointer-events:none;
+}
+
+form.loading * {
+    opacity: 50%;
+}
+
+form.loading::after {
+        content: " ";
+        height: 31px;
+        width: 31px;
+        display: inline-block;
+        background: rgba( 255, 255, 255, .8 )
+            url('http://i.stack.imgur.com/FhHRx.gif')
+            50% 50%
+            no-repeat;
+}
+</style>

@@ -111,4 +111,17 @@
                 label.innerHTML = 'Choose Image';
             }
         }
+
+        $('input').keydown(function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                if ($(this).attr('id') === 'category_name') {
+                    $('#category-form').submit();
+    
+                } else {
+                    $('#category-form').submit();
+                }
+                 
+            }
+        });
     </script>

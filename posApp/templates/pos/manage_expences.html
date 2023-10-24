@@ -98,5 +98,16 @@
             })
         })
 
-        
+        $('input').keydown(function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                if ($(this).attr('id') === 'expence_name') {
+                    $('#expence-form').submit();
+    
+                } else {
+                    $('#expence-form').submit();
+                }
+                 
+            }
+        });
     </script>

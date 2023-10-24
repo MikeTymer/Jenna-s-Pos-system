@@ -1,0 +1,153 @@
+<div class="container-fluid">
+   
+    <form action="" id="damage-form">
+        <input type="hidden" name="id" value="{% if damage.pk %}{{damage.pk}}{% endif %}">
+
+        <div class="form-group mb-3">
+            <label for="image" class="control-label">Image</label>
+                <div class="input-group">
+                    <div class="custom-file">
+                        <input type="file" name="image" id="image" accept="image/*" class="custom-file-input" onchange="previewImage(event)">
+                        <label class="custom-file-label">Choose Damage Image</label>
+                    </div>
+                </div>
+        </div>
+    
+        {% if save_damage.image %}
+        <div class="form-group mb-3">
+            <label class="control-label">Current Image</label>
+                <div class="mb-2">
+                    <img id="image-preview" src="{{ save_damage.image.url }}" alt="Current Image" class="img-thumbnail" style="max-width: 200px;">
+                </div>
+        </div>
+        {% else %}
+        <div class="form-group mb-3">
+            <label class="control-label">Preview</label>
+            <div class="mb-2">
+                <img id="image-preview" src="#" alt="Preview Image" class="img-thumbnail" style="max-width: 200px; display: none;">
+            </div>
+        </div>
+        {% endif %}
+
+
+        <div class="form-group mb-3">
+            <label for="product_id" class="control-label">Damaged Product</label>
+            <select name="product_id" id="product_id" class="form-select form-select-sm rounded-0" required>
+            {% if not damage.product_id %}
+            <option value="" disabled selected></option>
+            {% else %}
+            <option value="" disabled></option>
+            {% endif %}
+            {% for product in products %}
+                {% if product.product_id == product.id %}
+                <option value="{{ product.id }}" selected>{{ product.name }}</option>
+                {% else %}
+                <option value="{{ product.id }}">{{ product.name }}</option>
+                {% endif %}
+            {% endfor %}
+
+
+            </select>
+            
+            <div class="form-group mb-3">
+                <label for="description" class="control-label">Description</label>
+                <textarea  name="description" id="description" class="form-control " >
+                    {% if damage.description %}{{damage.description}}{% endif %}
+                </textarea> 
+
+              
+            </div>
+            <div class="form-group mb-3">
+                <label for="quantity" class="control-label">Quantity</label>
+            <input type="text" name="quantity" id="quantity" class="form-control form-control-sm rounded-0" value="{% if damage.quantity %}{{damage.quantity}}{% endif %}" >
+
+
+              
+            </div>
+
+    
+    </form>
+
+    </div>
+    
+    <script>
+        $(function() {
+            $('#damage-form').submit(function(e) {
+                e.preventDefault();
+                var _this = $(this)
+                $('.err-msg').remove();
+                var el = $('<div>')
+                el.addClass("alert alert-danger err-msg")
+                el.hide()
+                if (_this[0].checkValidity() == false) {
+                    _this[0].reportValidity();
+                    return false;
+                }
+                start_loader();
+                $.ajax({
+                    headers: {
+                        "X-CSRFToken": '{{csrf_token}}'
+                    },
+                    url: "{% url 'save-damage-page' %}",
+                    data: new FormData($(this)[0]),
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    method: 'POST',
+                    type: 'POST',
+                    dataType: 'json',
+                    error: err => {
+                        console.log(err)
+                        end_loader();
+                    },
+                    success: function(resp) {
+                        if (typeof resp == 'object' && resp.status == 'success') {
+                            el.removeClass("alert alert-danger err-msg")
+                            location.reload()
+                        } else if (resp.status == 'failed' && !!resp.msg) {
+                            el.text(resp.msg)
+                        } else {
+                            el.text("An error occured", 'error');
+                            end_loader();
+                            console.err(resp)
+                        }
+                        _this.prepend(el)
+                        el.show('slow')
+                        $("html, body, .modal").scrollTop(0);
+                        end_loader()
+                    }
+                })
+            })
+        })
+
+        function previewImage(event) {
+            var input = event.target;
+            var preview = document.getElementById('image-preview');
+            var label = input.nextElementSibling;
+            var file = input.files[0];
+    
+            if (file) {
+                var reader = new FileReader();
+    
+                reader.onload = function() {
+                    preview.src = reader.result;
+                    preview.style.display = 'block';
+                }
+    
+                reader.readAsDataURL(file);
+                label.innerHTML = file.name;
+            } else {
+                preview.src = '#';
+                preview.style.display = 'none';
+                label.innerHTML = 'Choose Image';
+            }
+        }
+
+        $('input').keydown(function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                $('#damage-form').submit();
+            }
+        });
+
+    </script>

@@ -13,8 +13,53 @@ from posApp.filters import *
 from django.db import transaction
 import csv
 from django.core.files.storage import default_storage 
+import numpy as np
+from django.http import JsonResponse
 
-              
+
+from functools import reduce
+from operator import or_
+
+import bokeh.plotting as bp
+from bokeh.io import curdoc
+from bokeh.layouts import column, row
+from bokeh.models import ColumnDataSource, Slider, TextInput
+from bokeh.plotting import figure, show
+from bokeh.embed import components
+
+
+#twilio imports
+
+from django_twilio.utils import discover_twilio_credentials
+from django.contrib.auth.models import User
+
+from twilio.twiml.messaging_response import MessagingResponse
+from django_twilio.decorators import twilio_view
+
+
+def send_twilio_message(sale_id):
+   
+    # Replace with your Twilio credentials and phone numbers
+    twilio_account_sid = 'YOUR_ACCOUNT_SID'
+    twilio_auth_token = 'YOUR_AUTH_TOKEN'
+    from_phone_number = 'YOUR_TWILIO_PHONE_NUMBER'
+    to_phone_number = 'RECIPIENT_PHONE_NUMBER'
+
+    client = Client(twilio_account_sid, twilio_auth_token)
+    message_body = f"A sale has been made! Sale ID: {sale_id}"
+
+    for number in client.incoming_phone_numbers.stream():
+        print(number.friendly_name)
+        
+    message = client.messages.create(
+        body=message_body,
+        from_=from_phone_number,
+        to=to_phone_number
+    )
+
+    return message
+
+
 # Login
 def login_user(request):
     logout(request)
@@ -44,7 +89,7 @@ def logout_user(request):
 # Create your views here.
 @login_required
 def home(request):
-  
+    id = ''
     now = datetime.now()
     current_year = now.strftime("%Y")
     current_month = now.strftime("%m")
@@ -55,7 +100,6 @@ def home(request):
     departments = len(Department.objects.all())
     positions = len(Position.objects.all())
     #cost = Sales.objects.filter(cost = id).first()
-    
 
     transaction = len(Sales.objects.filter(
         date_added__year=current_year,
@@ -68,31 +112,49 @@ def home(request):
         date_added__day = current_day
     ).all()
     #sale_id = salesItems.objects.get(sale_id=sale_id).all()
-    today_Expences = len(Expences.objects.all())
-    
-    total_sales = sum(today_sales.values_list('grand_total',flat=True))
+    today_Expences = Expences.objects.filter(
+        date_added__year=current_year,
+        date_added__month = current_month,
+        date_added__day = current_day
+    ).count()
+    today_Damages = Damages.objects.filter(
+        date_added__year=current_year,
+        date_added__month = current_month,
+        date_added__day = current_day
+    ).count()
+
+    total_sales = sum(today_sales.values_list('grand_total', flat=True))
     # 600000
     tocost = 300000
-   
-    profit = total_sales - tocost
+    sales_data = Sales.objects.filter(
+        date_added__year=current_year,
+        date_added__month = current_month,
+        date_added__day = current_day
+    )
+    profit = total_sales - tocost 
+    total_tax = sum(today_sales.values_list('tax_amount', flat=True))
     
     context = {
-        'page_title':'Home',
+        'page_title': 'Home',
+        'id':id,
+        'total_tax':total_tax,
         'today_Expences': today_Expences,
-        'categories' : categories,
-        'products' : products,
-        'employees' : employees,
-        'departments' : departments,
-        'positions'  : positions,
-        'transaction' : transaction,
-        'total_sales' : total_sales,
-        'tocost' : tocost,
+        'today_Damages': today_Damages,
+        'categories': categories,
+        'products': products,
+        'employees': employees,
+        'departments': departments,
+        'positions': positions,
+        'transaction': transaction,
+        'total_sales': total_sales,
+        'tocost': tocost,
         'profit': profit,
+        
     }
-    
-    #profit = sum(today_sales.values_list('grand_total', flat=True))
-    return render(request, 'pos/home.html',context)
 
+    #profit = sum(today_sales.values_list('grand_total', flat=True))
+    #return render(request, 'pos/home.html', context, show(p))
+    return render(request,'pos/home.html', context)
 
 def about(request):
     context = {
@@ -407,7 +469,7 @@ def upload_employees(request):
         csv_file = request.FILES['csv_file']
 
         if not csv_file.name.endswith('.csv'):
-            resp['status'] = 'success'
+            resp['status'] = 'failed'
             messages.error(request, 'Please upload a CSV file.')
         else:
             decoded_file = csv_file.read().decode('utf-8')
@@ -452,7 +514,7 @@ def delete_employee(request):
     try:
         Employee.objects.filter(id = data['id']).delete()
         resp['status'] = 'success'
-        messages.success(request, 'Employee Successfully deleted.')
+        messages.success(request, 'Employee Records Successfully deleted.')
     except:
         resp['status'] = 'failed'
     return HttpResponse(json.dumps(resp), content_type="application/json")
@@ -528,6 +590,13 @@ def products(request):
     productsfilter = ProductsFilter(request.GET, queryset=queryset)
     filtered_objects = productsfilter.qs
     
+    low_quantity_products = Products.objects.filter(quantity__lt=10)
+    if low_quantity_products.exists():
+        messages.warning(request,'Warning: There are products with quantity below ten marked red in grid view. Please add more of those products')
+    
+    Products.objects.filter(quantity= 0).update(status='0')  
+    Products.objects.exclude(quantity=0).update(status='1')
+    
     product_list = queryset
     context = {
         'page_title':'Product List',
@@ -555,75 +624,57 @@ def manage_products(request):
         'categories' : categories
     }
     return render(request, 'pos/manage_product.html',context)
-def test(request):
-    categories = Category.objects.all()
-    context = {
-        'categories' : categories
-    }
-    return render(request, 'pos/test.html',context)
+
 @login_required
 @permission_required('product.save_product')  
 
 #products remake
 def save_product(request):
-    product = Products()
+    resp = {'status': 'failed'}
+    data = request.POST
+    image_file = request.FILES.get('image')  # Initialize image_file
     
-    data =  request.POST
-    resp = {'status':'failed'}
-    id= ''
-    
-    image_file = request.FILES.get('image')
-    
-    if 'id' in data:
-        id = data['id']
-    if id.isnumeric() and int(id) > 0:
-        check = Products.objects.filter(code=data['code'], id=id).all()   # Products.objects.exclude(id=id).filter(code=data['code']).all()
-        
-    else:
-        check = Products.objects.filter(code=data['code']).all()
-    if len(check) > 0 :
-        resp['msg'] = "Product Code Already Exists in the database"
-    else:
-        category = Category.objects.filter(id = data['category_id']).first()
-        
-    
-        try:
-            
-            print(image_file)
-            if (data['id']).isnumeric() and int(data['id']) > 0 :
-                print("if")
-              
-                save_product = Products.objects.filter(id = data['id']).update(code=data['code'], category_id=category, name=data['name'], description = data['description'], cost = float(data['cost']),price = float(data['price']),status = data['status'],quantity = data['quantity'])
-                
-                #print(save_product.code)
-                if image_file:
-                    if product.image:
-                        save_product.image = image_file 
-                    
-                        save_product.save()
-                
-                    
-            else:
-                print("else")
-                save_product = Products(code=data['code'], category_id=category, name=data['name'], description = data['description'],cost = float(data['cost']), price = float(data['price']),status = data['status'],quantity = data['quantity'])
-                
-                if image_file:
-                    
-                    if product.image:
-                        product.delete(product.image.path)
-                    # Save new image file
-                    
-                        save_product.image = image_file                  
-                        save_product.save()
-                    
-            resp['status'] = 'success'
-            messages.success(request, 'Product Successfully saved.')
-        except Exception as e:
-            resp['status'] = 'failed'
-            print(str(e))
-            messages.error(request, str(e))
-    return HttpResponse(json.dumps(resp), content_type="application/json")
+    try:
+        if 'id' in data and data['id'].isnumeric() and int(data['id']) > 0:
+            product = Products.objects.get(id=data['id'])
+            # Check if the product's code conflicts with another product's code
+            check = Products.objects.exclude(id=data['id']).filter(code=data['code']).exists()
+        else:
+            product = Products()
+            # Check if the product's code conflicts with another product's code
+            check = Products.objects.filter(code=data['code']).exists()
 
+        if check:
+            resp['msg'] = "Product Code Exists Twice in the database, Please change the code and try again"
+        else:
+            category = Category.objects.filter(id=data['category_id']).first()
+
+            product.code = data['code']
+            product.category_id = category
+            product.name = data['name']
+            product.description = data['description']
+            product.price = float(data['price'])
+            product.cost = float(data['cost'])
+            product.status = data['status']
+            product.quantity = data['quantity']
+
+            if image_file:
+                # Delete the old image if it exists
+                if product.image:
+                    product.image.delete()
+                # Save the new image file
+                product.image = image_file
+
+            product.save()
+            
+            resp['status'] = 'success'
+            messages.success(request, 'Product has been saved successfully.')
+            
+    except Exception as e:
+        resp['status'] = 'failed'
+        messages.error(request, 'Product has failed to save: {}'.format(str(e)))
+    
+    return HttpResponse(json.dumps(resp), content_type="application/json")
 
 
 @login_required
@@ -663,6 +714,7 @@ def upload_products(request):
                     description=row[3],
                     price=row[4],
                     status=row[5],
+                    cost = row[6],
                     quantity=row[6],
                    
                 )
@@ -712,6 +764,7 @@ def checkout_modal(request):
 
 @login_required
 def save_pos(request):
+    
     resp = {'status':'failed','msg':''}
     data = request.POST
     pref = datetime.now().year + datetime.now().year
@@ -745,16 +798,25 @@ def save_pos(request):
             print({'sale_id' : sale, 'product_id' : product, 'qty' : qty,'tcost':tcost,'price' : price, 'total' : total})
             salesItems(sale_id = sale,product_id = product,qty = qty,price = price,tcost = tcost,total = total).save()
             i += int(1)
-            
-            
+            #check if products are finished
+            Products.objects.filter(quantity= 0).update(status='0')
+               
+                
             if product.quantity >= int(qty):
                 product.quantity -= int(qty)
                 
                 product.save()
+                
+                low_quantity_products = Products.objects.filter(quantity__lt=10)
+               
+                if low_quantity_products.exists():
+                    
+                    messages.warning(request, 'Warning: There are products with quantity below 10 marked red in grid view.Please add more of those products to make more sales.')
             else:
                     # Handle the case where the requested quantity exceeds the available quantity
                 resp['msg'] = f"Insufficient quantity for product: {product.name}, you need {q2} more {product.name}s to make the purchase. Please add {q2} more {product.name}s to the quantity of the {product.name}s form"
-                return HttpResponse(json.dumps(resp), content_type="application/json")       
+                return HttpResponse(json.dumps(resp), content_type="application/json") 
+              
         resp['status'] = 'success'
         resp['sale_id'] = sale_id
         messages.success(request, "Sale Record has been saved.")
@@ -768,11 +830,14 @@ def save_pos(request):
 
 @login_required
 def salesList(request):
-    sales = Sales.objects.all()
+    queryset = Sales.objects.all()
+    salesfilter = SalesFilter(request.GET, queryset=queryset)
+    filtered_objects = salesfilter.qs
     #tcost = len(salesItems.objects.all())
     #sq = len(salesItems.objects.all())
     sale_data = []
-    for sale in sales:
+    sales_list = queryset
+    for sale in queryset:
         data = {}
         for field in sale._meta.get_fields(include_parents=False):
             if field.related_model is None:
@@ -785,9 +850,10 @@ def salesList(request):
         sale_data.append(data)
     # print(sale_data)
     context = {
-        'page_title':'Sales Transactions',
-        'sale_data':sale_data,
-        #'sq':sq,
+        'page_title':'Sales List',
+        'sale_data':sales_list,
+        'filter': salesfilter, 
+        'objects': filtered_objects
     }
     # return HttpResponse('')
     return render(request, 'pos/sales.html',context)
@@ -902,45 +968,199 @@ def delete_expence(request):
         resp['status'] = 'failed'
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
-
-'''
-def salesList(request):
-    sales = Sales.objects.all()
-    sq = len(Position.objects.all())
-    sale_data = []
-    for sale in sales:
-        data = {}
-        for field in sale._meta.get_fields(include_parents=False):
-            if field.related_model is None:
-                data[field.name] = getattr(sale,field.name)
-        data['items'] = salesItems.objects.filter(sale_id = sale).all()
-        data['item_count'] = len(data['items'])
-        if 'tax_amount' in data:
-            data['tax_amount'] = format(float(data['tax_amount']),'.2f')
-        # print(data)
-        sale_data.append(data)
-    # print(sale_data)
+# charts and analytics    
+def productgrid(request):
+    queryset = Products.objects.all()
+    productsfilter = ProductsFilter(request.GET, queryset=queryset)
+    filtered_objects = productsfilter.qs
+    
+    product_list = queryset
     context = {
-        'page_title':'Sales Transactions',
-        'sale_data':sale_data,
-        'sq':sq,
+        'page_title':'Product List',
+        'products':product_list,
+        'filter': productsfilter, 
+        'objects': filtered_objects
     }
-    # return HttpResponse('')
-    return render(request, 'pos/sales.html',context)
+    return render(request, 'pos/productgrid.html',context)
+
+    """
+                message = client.messages.create(
+                    body='A sale has been made! Sale ID: {}'.format(sale_id),
+                    from_='+18149626890',
+                    to='+256706600530'
+                )
+                
+    """
+    ''' path('damage'
+    path('manage_damage'
+    path('test'
+    path('save_damage'
+    path('delete_damage' '''
+@login_required
+def damage(request):
+    queryset = Damages.objects.all()
+    damagesfilter = DamagesFilter(request.GET, queryset=queryset)
+    filtered_objects = DamagesFilter.qs
+    
+    damages_list = queryset
+    context = {
+        'page_title':'Damage List',
+        'damages':damages_list,
+        'filter': damagesfilter, 
+        'objects': filtered_objects
+    }
+    return render(request, 'pos/damage.html',context)
+    
+@login_required
+def manage_damages(request):
+    damage = {}
+    products = Products.objects.filter(status = 1).all()
+    if request.method == 'GET':
+        data =  request.GET
+        id = ''
+        if 'id' in data:
+            id= data['id']
+        if id.isnumeric() and int(id) > 0:
+            damage = Damages.objects.filter(id=id).first()
+    
+    context = {
+        'damage' : damage,
+        'products' : products
+    }
+    return render(request, 'pos/manage_damage.html',context)
+
+@login_required
+@permission_required('damage.save_damage')  
+def save_damage(request):
+    data = request.POST
+    resp = {'status': 'failed'}
+    products = Products.objects.filter(status = 1).all()
+    
+    try:
+        if data.get('id').isnumeric() and int(data['id']) > 0:
+            # Update existing damage record
+            damage = Damages.objects.get(id=data['id'])
+            product_id = int(data['product_id'])
+            product_instance = Products.objects.get(id=product_id)
+
+            damage.product_id = product_instance  # Assign the Products instance
+            damage.description = data['description']
+            damage.quantity = data['quantity']
+
+            if 'image' in request.FILES:
+                # Delete the old image if it exists
+                if damage.image:
+                    damage.image.delete()
+                # Save the new image file
+                damage.image = request.FILES['image']
+
+            damage.save()
+                       
+        
+        else:
+            # Create a new damage record
+            product_id = int(data['product_id'])
+            product_instance = Products.objects.get(id=product_id)
+
+            damage = Damages(product_id=product_instance, description=data['description'], quantity=data['quantity'])
+            
+            if 'image' in request.FILES:
+                damage.image = request.FILES['image']
+
+            damage.save()
+            #after damage has been saved reduce the quantity of products that were registered under that product code
+            
+            
+            
+            
+        resp['status'] = 'success'
+        messages.success(request, 'Damage Successfully saved.')
+    except Exception as e:
+        resp['status'] = 'failed'
+        # log for the errors
+        #print(str(e)) 
+        messages.error(request, 'Product has failed to save: {}'.format(str(e)))
+
+    return JsonResponse(resp)
+
+@login_required
+@permission_required('damage.delete_damage')
+def delete_damage(request):
+    data =  request.POST
+    resp = {'status':''}
+    try:
+        Damages.objects.filter(id = data['id']).delete()
+        resp['status'] = 'success'
+        messages.success(request, 'damage Successfully deleted.')
+    except:
+        resp['status'] = 'failed'
+    return HttpResponse(json.dumps(resp), content_type="application/json")
+    
+
+
+def upload_damages(request):
+    resp = {'status':''}
+    try:
+        csv_file = request.FILES['csv_file']
+
+        if not csv_file.name.endswith('.csv'):
+            resp['status'] = 'failed'
+            messages.error(request, 'Please upload a CSV file.')
+        else:
+            decoded_file = csv_file.read().decode('utf-8')
+            csv_data = csv.reader(decoded_file.splitlines(), delimiter=',')
+            next(csv_data) # Skip the heading row and header row
+
+            for row in csv_data:
+                Damages.objects.create(
+                    product_id=Products.objects.get(name=row[0]),
+                    description=row[1],
+                    quantity = row[2],
+                    
+                )
+            resp['status'] = 'Success'
+            messages.success(request, 'Damages csv data saved successfully')
+
+    except KeyError:
+        resp['status'] = 'failed'
+        messages.success(request, 'Please upload a file and try again.')
+
+    except Exception as e:
+        resp['status'] = 'failed'
+        messages.error(request, str(e))
+
+    return redirect('damage-page')
+    
+@login_required
+def non(request):
+    
+    return render(request,'pos/non.html')    
+    
+
 '''
 
+'''
+def search(request):
+    resp = {'status':''}
+    try:
+        if ProductsFilter > 0:
+            ProductsFilter = ProductsFilter(request.GET, queryset=Products)
+        if DamagesFilter > 0:
+            DamagesFilter = DamagesFilter(request.GET, queryset= Damages)
+        if ExpencesFilter > 0:
+            ExpencesFilter = ExpencesFilter(request.GET, queryset=Expences)
+        if CategoryFilter > 0:
+            CategoryFilter = CategoryFilter(request.GET, queryset= Category)
+        if SalesFilter > 0:
+            SalesFilter = SalesFilter(request.GET, queryset = Sales)
+                        
+        resp['status'] = 'success'
+        messages.success(request, 'Search Successfully made.')
+    except:
+        resp['status'] = 'failed'
 
-# charts and analytics
+        messages.success(request, 'Search failed please check and try again.')
+        
+    return HttpResponse(json.dumps(resp), content_type="application/json")
 
-def product_chart(request):
-    products = Product.objects.all()
-    chart = chartit.BarChart(
-        title="Products vs. Prices",
-        x_axis_title="Products",
-        y_axis_title="Prices",
-        data=[
-            (product.name, product.price) for product in products
-        ],
-    )
-    return render(request, "chart.html", {"chart": chart})
-
+    #csv downloads

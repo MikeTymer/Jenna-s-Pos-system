@@ -22,7 +22,7 @@
 <div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
     <div class="mdc-card">
         <div class="table-responsive">
-            <table class="table table-striped table-bordered">
+            <table class="table table-striped table-hover table-bordered">
                 <colgroup>
                     <col width="5%">
                     <col width="20%">
@@ -30,6 +30,7 @@
                     <col width="25%">
                     <col width="25%">
                     <col width="10%">
+                    <col width="20%">
                     <col width="15%">
                 </colgroup>
                 <thead>
@@ -40,6 +41,7 @@
                         <th class="text-center py-1">Description</th>
                         <th class="text-center py-1">Amount</th>
                         <th class="text-center py-1">Quantity</th>
+                        <th class="text-center py-1">Date and Time</th>
                         <th class="text-center py-1">Action</th>
                     </tr>
                 </thead>
@@ -48,11 +50,11 @@
                     <tr>
                         <td class="px-2 py-1 text-center">{{ expence.id }}</td>
                         <td class="px-2 py-1 text-start">{{ expence.category_id }}</td>
-                        <td class="px-2 py-1 text-start">{{ expence.code }} - {{ expence.name }}</td>
+                        <td class="px-2 py-1 text-start">{{ expence.name }}</td>
                         <td class="px-2 py-1 text-start">{{ expence.description }}</td>
                         <td class="px-2 py-1 text-start">{{ expence.amount }}</td>
                         <td class="px-2 py-1 text-start">{{ expence.quantity }}</td>
-
+                        <td class="px-2 py-1 text-start">{{ expence.date_added }}</td>
                         <td class="px-2 py-1 text-center">
                             {% if perms.app.edit_expence %}
                             <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--light mdc-ripple-upgraded edit-data" type="button" data-id="{{ expence.pk }}" title="Edit">

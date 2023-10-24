@@ -1,0 +1,394 @@
+{% extends "pos/base.html" %} 
+{% load humanize %} {% block pageContent %}
+
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-2">
+
+        <form class = " stateform bg-light" method="get">
+            <div class="well">
+              <h4 style="margin-top: 0">Filter Items By</h4>
+              <div class="row">
+                <div class="form-group col-sm-4 col-md-4">
+                    <label>Product Name</label>
+                    {{  filter.form.product_id }}
+                  </div>
+                <br>
+                    <div class="form-group col-sm-4 col-md-3">
+                    <label>Quantity greater than</label>
+                    {{ filter.form.quantity }}
+                  </div>
+                  <div class="form-group filter.form.date_added col-sm-4 col-md-3">
+                    <label>Month</label>
+                    {{ filter.form.date_added }}
+                  </div>
+               
+                  <div class="text-end">
+                    <button type="submit" class="btn btn-primary bg-success btn-sm rounded-10">
+                        <span class="glyphicon glyphicon-search "></span> Filter search
+                      </button>
+              
+                    </div>
+              </div>
+              
+            </div>
+        </form>
+
+        <div class="d-flex justify-content-between align-items-center">
+            
+            <h4 class="card-title mb-0">View Damages</h4>
+            <!--search it-->
+            
+            <div class="text-start">
+                {% if perms.app.save_damage %}
+                <button class="btn btn-primary bg-success btn-sm rounded-10" id="create_new"><i class="mdi mdi-plus"></i><span> Add New</span></button>
+                {% endif %}
+            </div>
+
+           
+        </div>
+       
+    </div>
+   
+    
+</div>
+
+<!--  -->
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12 tab-content" id="nav-tabContent">
+
+    <div class="mdc-card tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+        <div class="table-responsive ">
+            <table class="table table-hover table-striped table-bordered" id ="table" >
+                <colgroup>
+                    <col width="5%">
+                    <col width="15%">
+                    <col width="15%">
+                
+                    
+                    <col width="15%">
+                    <col width="15%">
+                    <col width="5%">
+                    <col width="10%">
+                    
+                   
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="text-center py-1">#</th>
+                        <th class="text-center py-1">Date</th>
+                        <th class="text-center py-1">Damaged Product</th>
+                      
+                        <th class="text-center py-1">Description</th>
+                        <th class="text-center py-1">Item cost</th>
+                        <th class="text-center py-1">Quantity/amaount</th>
+                        <th class="text-center py-1">Action</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for damage in filter.qs  %}
+                    <tr>
+                        <td class="px-2 py-1 text-center">{{ damage.id }}</td>
+                        <td class="px-2 py-1 text-center">{{ damage.date_added }}</td>
+                        <td class="px-2 py-1 text-start">{{ damage.product_id.name }} - {{ damage.product_id.id }}</td>
+                        <td class="card card-text px-1 py-1 text-left row-4">{{ damage.description }}</td>
+                        <td class="px-2 py-1 field-start">{{ damage.product_id.cost }}</td>
+                        <td class="px-2 py-1 field-start">{{ damage.quantity }}</td>
+                        <td class="px-2 py-1 text-center">
+                          
+                            {% if damage.image %}
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--light mdc-ripple-upgraded view-data" type="button" data-url="{{ damage.image.url }}" title="View Image of {{ damage.name}}">
+                         
+                                <i class="material-icons">image</i>
+                            </button>
+                            {% endif %}
+                            {% if perms.app.edit_damage %}
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--light mdc-ripple-upgraded edit-data" type="button" data-id="{{ damage.pk }}" title="Edit">
+                                <i class="material-icons mdc-button__icon">edit</i>
+                            </button>
+                            {% endif %}
+                            {% if perms.app.delete_damage %}
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--danger mdc-ripple-upgraded delete-data" type="button" data-id="{{ damage.pk }}" title="Delete">
+                                <i class="material-icons mdc-button__icon">deleteoutline</i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!-- This is for downloading the csv file from the damages filtered data-->
+        <div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+            <div class="mdc-card py-0">
+            <!-- there will be a form to download the data that is filtered by the user -->
+                
+                
+            </div>
+            
+        </div>
+        <div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+            <div class="mdc-card py-2">
+                
+                <div class="card-inner ">
+                
+                      <form>  
+                
+                    <h5 class="card-title te">Upload your damages information using an excell sheet              
+                        <i class="material-icons">information</i>
+                        <div id="anim">
+                            <span class="tooltip" data-tooltip="username must consist of 29 symbols.">?</span>
+                            </div>
+                    </h5>
+                </form>
+                    <h5 class="font-weight-light pb-2 mb-1 border-bottom">{{ categories|intcomma }}</h5>
+                    <p class="tx-12 text-muted">Simply click on the choose file button to choose a csv file and then click the upload button and the damages data will be uploaded</p>
+                    <form method="get" enctype="multipart/form-data" action="">
+                        {% csrf_token %}
+                        <div id="message-container" class="mt-3"></div>
+                        <h3> Click the button to download the CSV file </h3>  
+                        
+                        <!-- create an HTML button to download the CSV file on click -->  
+                        
+                        <button class="btn btn-outline-primary btn-lg btn-block bg-dark" type="button" onclick="download_csv_file();">Download Excel Sample sheet</button>
+
+                    </form> 
+                    <br>
+                </div>
+                
+                <form class= "mdc-form" method="post" enctype="multipart/form-data" action="{% url 'upload_damages-page' %}">
+                    {% csrf_token %}
+                    <input class="mdc-input bg-dark text-light" type="file" name="csv_file" accept=".csv">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-primary btn-lg btn-block mdc-btn bg-dark" type="upload_damages">Upload</button>
+                </form>   
+            </div>
+         
+        </div>
+    </div>
+
+    <!-- tab 2 content-->
+    <div class ="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12 tab-pane show inactive" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+        <div class="row p-2 row-cols-1 row-cols-md-2">
+            {% for damage in damages %}
+              <div class="col col-md-4 card g-col-6  d-lg-flex bg-white">
+                    
+               <h4> <span class="label label-default">{{ damage.id }}</span></h4>
+               <div class="backgroundEffect {% if damage.quantity <= 10 %} bg-danger text-light{% else %} bg-dark{% endif %} "></div>
+
+                {% if damage.image %}
+                <div class="container-fluid form-group mb-4">
+                    <label class="control-label">{{ damage.product_id.name }}</label>
+                   
+                        <div class="pic mb-2 card-img-top">
+                            <img id="image-preview" src="{{ damage.image.url }}" alt="Current Image" class="img-thumbnail" style="max-width: 200px;">
+                        
+                            <div class="date"> 
+                                
+                                    <p class="mdc-text text-danger">DATE</p>
+                                
+                                <span class="day ">{{ damage.date_added.day }}</span> 
+                                
+                                <span class="month mdc-text text-success">{{ damage.date_added.month }}</span> 
+                               
+                                <span class="year">{{ damage.date_added.year }}</span> 
+                                <div class="card-footer">
+                  
+                                </div>
+                            </div> 
+                        </div>
+                </div>
+                
+                {% else %}
+                <div class="form-group mb-3">
+                    <h4>  <label class="control-label">Preview</label></h4> 
+                    <div class="pic mb-2">
+                        <img id="image-preview" src="#" alt="Preview Image" class="img-thumbnail" style="max-width: 200px; display: none;">
+                    </div>
+                </div>
+                {% endif %}
+                <div class="card-body ">
+                    <div class="section-damages ">
+                        <h4 class="card-text">{{ damage.description }}</h4>
+                            <div id="id" class="single-damage">
+                                
+                                    <div class="part-2 card-text ">
+                                            
+                                        Cost:    <h4 class="damage-old-price">{{ damage.product_id.cost }}</h4>
+                                        <br>
+                                           Price: <h4 class="damage-price">{{ damage.product_id.price }}</h4>
+                                           <br>
+                               </div>
+                            </div>
+                    </div>
+                </div>	
+                <div class="card- text-right">
+                    
+                    {% if damage.quantity <= 10 %}
+                    
+                    <h3 class="mdc-text text-right"> Quantity left:   {{ damage.quantity }} </h3>
+                    <h5 class="mdc-text text-right text-danger">Very Low</h5>
+                    {% elif damage.quantity >= 50 %}
+                    
+                    <h4 class="mdc-text text-right text-success"> Quantity left:   {{ damage.quantity }} </h4>
+                    <h5>High</h5>
+                    {% elif damage.quantity <= 49 %}
+                   
+                    <h4 class="mdc-text text-right text-material"> Quantity left:   {{ damage.quantity }} </h4>
+                    <h5>Low</h5>
+                    {% endif %}
+
+                    {% if perms.app.edit_damage %}
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--light mdc-ripple-upgraded edit-data" type="button" data-id="{{ damage.pk }}" title="Edit">
+                                <i class="material-icons mdc-button__icon">edit</i>
+                            </button>
+                            {% endif %}
+                            {% if perms.app.delete_damage %}
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--danger mdc-ripple-upgraded delete-data" type="button" data-id="{{ damage.pk }}" title="Delete">
+                                <i class="material-icons mdc-button__icon">deleteoutline</i>
+                            </button>
+                            {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+    </div>
+</div>
+
+
+
+
+{% endblock pageContent %} {% block ScriptBlock %}
+<script>
+    $(function() {
+        $('#create_new').click(function() {
+            uni_modal("Add New Damage", "{% url 'manage_damage-page' %}")
+        })
+        $('.edit-data').click(function() {
+            uni_modal("Edit Damage", "{% url 'manage_damage-page' %}?id=" + $(this).attr('data-id'))
+        })
+        $('.delete-data').click(function() {
+            _conf("Are you sure to delete this Damage?", "delete_damage", [$(this).attr('data-id')])
+        })
+
+        $('#uni_modal').on('shown.bs.modal', function() {
+            $('#product_id').select2({
+                placeholder: "Please Select Damaged Product Here",
+                width: '80%',
+                dropdownParent: $('#uni_modal')
+            })
+        })
+        
+        $('.view-data').click(function() {
+            var imageUrl = $(this).data('url');
+            showImageWindow(imageUrl);
+        })
+    })
+    
+    $(function() {
+        // Add a search button
+        $('#search_button').after('<button id="search_button">Search</button>');
+    
+        // Handle the search button click event
+        $('#search_button').click(function() {
+            // Get the search query from the input field
+            var searchQuery = $('#search_input').val();
+    
+            // Make a request to the server to search for damages by name
+            $.ajax({
+                url: '/damages/search/',
+                type: 'GET',
+                data: {
+                    'search_query': searchQuery
+                },
+                success: function(response) {
+                    // Clear the existing damages list
+                    $('#damages_list').empty();
+    
+                    // Add the damages from the response to the list
+                    for (var i = 0; i < response.damages.length; i++) {
+                        var damage = response.damages[i];
+                        $('#damages_list').append('<li><a href="/damages/' + damage.id + '/">' + damage.name + '</a></li>');
+                    }
+                }
+            });
+        });
+    });
+
+    function delete_damage($id) {
+        start_loader();
+        $.ajax({
+            headers: {
+                "X-CSRFToken": '{{csrf_token}}'
+            },
+            url: "{% url 'delete-damage' %}",
+            method: "POST",
+            data: {
+                id: $id
+            },
+            dataType: "json",
+            error: err => {
+                console.log(err)
+                alert_toast("An error occured.", 'error');
+                end_loader();
+            },
+            success: function(resp) {
+                if (typeof resp == 'object' && resp.status == 'success') {
+                    location.reload();
+                } else {
+                    alert_toast("An error occured.", 'error');
+                    end_loader();
+                }
+            }
+        })
+    }
+
+    function showImageWindow(imageUrl) {
+        var head = $('head').clone();
+        var img = $('<img>').attr('src', imageUrl).css('max-width', '100%');
+        var body = $('<body>').css('background-color', 'unset').append(img);
+        var html = $('<html>').append(head).append(body);
+
+        var windowFeatures = 'width=800,height=400,left=300,top=200';
+        var printWindow = window.open('', '_blank', windowFeatures);
+        printWindow.document.open();
+        printWindow.document.write(html[0].outerHTML);
+        printWindow.document.close();
+
+        printWindow.onload = function() {
+            printWindow.print();
+            setTimeout(function() {
+                printWindow.close();
+            }, 18050);
+        };
+    }
+//create CSV file data in an array  
+    var csvFileData = [
+    // Your CSV data here
+    ];
+
+function download_csv_file() {
+    var csv = 'Product nane,Description,Quantity\n';
+
+    csvFileData.forEach(function(row) {
+        csv += row.join(',') + '\n';
+    });
+
+    var hiddenElement = document.createElement('a');
+    hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+    hiddenElement.target = '_blank';
+    hiddenElement.download = 'damages_csv_data_sample_sheet.csv';
+    hiddenElement.click();
+
+    // Display success message
+    var messageContainer = document.getElementById('message-container');
+    messageContainer.innerHTML = '<div class="alert bg-success alert-success mt-3">CSV file has been downloaded successfully!</div>';
+
+    // Remove the message after 3 seconds (adjust the time as needed)
+    setTimeout(function() {
+        messageContainer.innerHTML = '';
+    }, 30000); // 3000 milliseconds = 3 seconds
+}
+
+    
+</script>
+{% endblock ScriptBlock %}

@@ -4,6 +4,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 from django.views.generic.base import RedirectView
 
+
 urlpatterns = [
     path('redirect-admin', RedirectView.as_view(url="/admin"),name="redirect-admin"),
     path('', views.home, name="home-page"),
@@ -39,11 +40,21 @@ urlpatterns = [
     path('delete_position', views.delete_position, name="delete-position"),
     path('upload_employees', views.upload_employees, name="upload_employees-page"),
     path('upload_products', views.upload_products, name="upload_products-page"),
+    path('upload_damages', views.upload_damages, name="upload_damages-page"),
     path('expences', views.expences, name="expence-page"),
     path('manage_expences', views.manage_expences, name="manage_expences-page"),
     path('test', views.test, name="test-page"),
     path('save_expence', views.save_expence, name="save-expence-page"),
     path('delete_expence', views.delete_expence, name="delete-expence"),
-    
+    path('productgrid', views.productgrid, name="productgrid"),
+    path('damage', views.damage, name="damage-page"),
+    path('manage_damage', views.manage_damages, name="manage_damage-page"),
+    path('test', views.test, name="test-page"),
+    path('save_damage', views.save_damage, name="save-damage-page"),
+    path('delete_damage', views.delete_damage, name="delete-damage"),
+    #charts
+    path('non', views.non, name="non-page"),
+    path('search/', views.search, name='search'),
+  
     
 ]

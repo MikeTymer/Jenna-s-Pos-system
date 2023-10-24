@@ -1,4 +1,5 @@
 <div class="container-fluid">
+   
     <form action="" id="product-form">
         <input type="hidden" name="id" value="{% if product.pk %}{{product.pk}}{% endif %}">
 
@@ -7,7 +8,7 @@
                 <div class="input-group">
                     <div class="custom-file">
                         <input type="file" name="image" id="image" accept="image/*" class="custom-file-input" onchange="previewImage(event)">
-                        <label class="custom-file-label">Choose Image</label>
+                        <label class="custom-file-label">Choose Product Image</label>
                     </div>
                 </div>
         </div>
@@ -77,15 +78,15 @@
                 <label for="status" class="control-label">Status</label>
                 <select name="status" id="status" class="form-select form-select-sm rounded-0" required>
             {% if product.status and product.status == 1 %}
-            <option value="1" selected>Active</option>
+            <option value="1" selected>Available</option>
             {% else %}
-            <option value="1">Active</option>
+            <option value="1">Available</option>
             {% endif %}
 
             {% if product.status and product.status == 0 %}
-            <option value="0" selected>Inactive</option>
+            <option value="0" selected>Unavailable</option>
             {% else %}
-            <option value="0">Inactive</option>
+            <option value="0">Unavailable</option>
             {% endif %}
         </select>
             </div>
@@ -94,6 +95,7 @@
                 <input type="num" name="quantity" id="quantity" class="form-control form-control-sm rounded-0" value="{% if product.quantity %}{{product.quantity}}{% endif %}" required>
             </div>
     </form>
+
     </div>
     
     <script>
@@ -168,4 +170,18 @@
                 label.innerHTML = 'Choose Image';
             }
         }
+
+        $('input').keydown(function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                if ($(this).attr('id') === 'product-qty') {
+                    $('#save-product-page').click();
+    
+                } else {
+                    $('#product-form').submit();
+                }
+                 
+            }
+        });
+
     </script>

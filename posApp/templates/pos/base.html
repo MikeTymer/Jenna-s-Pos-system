@@ -27,8 +27,14 @@
     
     <link rel="stylesheet" href="{% static 'posAPP/assets/default/css/style.css' %}">
 
-
-
+    <!--     these are the css links for the bokeh charts-->
+    {% block preamble %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
+    <link rel="stylesheet" href="app/static/special.css">
+    {% endblock %}
+    
     <!-- End layout styles -->
     <link rel="shortcut icon" href="{% static 'posAPP/assets/material-admin/images/pos.png' %}" />
     <script src="{% static 'posAPP/assets/default/js/jquery-3.6.0.min.js' %}">
@@ -60,6 +66,406 @@
           transform: translatex(10px);
         }
         
+        a,
+        a:hover {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        
+        .section-products .header h3 {
+            font-size: 1rem;
+            color: #fe302f;
+            font-weight: 500;
+        }
+        
+        .section-products .header h2 {
+            font-size: 2.2rem;
+            font-weight: 400;
+            color: #444444; 
+        }
+        
+        .section-products .single-product {
+            margin-bottom: 26px;
+        }
+        
+        .section-products .single-product .part-1 {
+            position: relative;
+            height: 290px;
+            max-height: 290px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .section-products .single-product .part-1::before {
+                position: absolute;
+                content: "";
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
+                transition: all 0.3s;
+        }
+        
+        .section-products .single-product:hover .part-1::before {
+                transform: scale(1.2,1.2) rotate(5deg);
+        }
+        
+        .section-products #product-1 .part-1::before {
+            background: url("https://i.ibb.co/L8Nrb7p/1.jpg") no-repeat center;
+            background-size: cover;
+                transition: all 0.3s;
+        }
+        
+        .section-products #product-2 .part-1::before {
+            background: url("https://i.ibb.co/cLnZjnS/2.jpg") no-repeat center;
+            background-size: cover;
+        }
+        
+        .section-products #product-3 .part-1::before {
+            background: url("https://i.ibb.co/L8Nrb7p/1.jpg") no-repeat center;
+            background-size: cover;
+        }
+        
+        .section-products #product-4 .part-1::before {
+            background: url("https://i.ibb.co/cLnZjnS/2.jpg") no-repeat center;
+            background-size: cover;
+        }
+        
+        .section-products .single-product .part-1 .discount,
+        .section-products .single-product .part-1 .new {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            color: #ffffff;
+            background-color: #fe302f;
+            padding: 2px 8px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+        
+        .section-products .single-product .part-1 .new {
+            left: 0;
+            background-color: #444444;
+        }
+        
+        .section-products .single-product .part-1 ul {
+            position: absolute;
+            bottom: -41px;
+            left: 20px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            opacity: 0;
+            transition: bottom 0.5s, opacity 0.5s;
+        }
+        
+        .section-products .single-product:hover .part-1 ul {
+            bottom: 30px;
+            opacity: 1;
+        }
+        
+        .section-products .single-product .part-1 ul li {
+            display: inline-block;
+            margin-right: 4px;
+        }
+        
+        .section-products .single-product .part-1 ul li a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            background-color: #ffffff;
+            color: #444444;
+            text-align: center;
+            box-shadow: 0 2px 20px rgb(50 50 50 / 10%);
+            transition: color 0.2s;
+        }
+        
+        .section-products .single-product .part-1 ul li a:hover {
+            color: #fe302f;
+        }
+        
+        .section-products .single-product .part-2 .product-title {
+            font-size: 1rem;
+        }
+        
+        .section-products .single-product .part-2 h4 {
+            display: inline-block;
+            font-size: 1rem;
+        }
+        
+        .section-products .single-product .part-2 .product-old-price {
+            position: relative;
+            padding: 0 7px;
+            margin-right: 2px;
+            opacity: 0.6;
+        }
+        
+        
+        
+        
+        .card .backgroundEffect {
+            bottom: 0;
+            height: 0px;
+            width: 850%
+        }
+
+        .card:hover {
+            color: #fff;
+            transform: scale(1.025);
+            box-shadow: rgba(0.24, 0, 0, 0) 0px 5px 10px
+        }
+
+        .card:hover .backgroundEffect {
+            bottom: 0;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            z-index: -1;            
+            animation: popBackground 0.3s ease-in
+        }
+
+        @keyframes popBackground {
+            0% {
+                height: 20px;
+                border-top-left-radius: 50%;
+                border-top-right-radius: 50%
+            }
+
+            50% {
+                height: 180px;
+                border-top-left-radius: 75%;
+                border-top-right-radius: 75%
+            }
+
+            75% {
+                height: 160px;
+                border-top-left-radius: 85%;
+                border-top-right-radius: 85%
+            }
+
+            100% {
+                height: 320px;
+                border-top-left-radius: 100%;
+                border-top-right-radius: 100%
+            }
+        }
+
+        .card .pic {
+            position: relative
+        }
+
+        .card .pic img {
+            width: 100%;
+            height: 100%%;
+            object-fit: cover
+        }
+
+        .card .date {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 90px;
+            background-color: #040511;
+            color: white;
+            position: absolute;
+            bottom: 10px;
+            transition: all ease
+        }
+
+        .card .date .day {
+            font-size: 14px;
+            font-weight: 600
+        }
+
+        .card .date .month,
+        .card .date .year {
+            font-size: 10px
+        }
+
+        .card .text-muted {
+            font-size: 12px
+        }
+
+        .card:hover .text-muted {
+            color: #000000 !important
+        }
+
+        .card .content {
+            padding: 0 20px
+        }
+
+        .card .content .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 10px;
+            background-color: #1b9ce3;
+            border-radius: 25px;
+            font-size: 12px;
+            border: none
+        }
+
+        .card:hover .content .btn {
+            background: #333333;
+            color: #1b9ce3;
+            box-shadow: #0000001a 0px 3px 5px
+        }
+
+        .card .content .btn .fas {
+            font-size: 10px;
+            padding-left: 5px
+        }
+
+        .card .content .foot .admin {
+            color: #1b9ce3;
+            font-size: 12px
+        }
+
+        .card:hover .content .foot .admin {
+            color: #fff
+        }
+
+        .card .content .foot .icon {
+            font-size: 12px
+        }
+        .section-products .single-product .part-2 .product-old-price::after {
+            position: absolute;
+            content: "";
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: #444444;
+            transform: translateY(-50%);
+        }
+        $green: #78C55F;
+        @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400');
+        .tooltip {
+            position: relative;
+            background: $green;
+            padding: 5px 12px;
+            margin: 5px;
+            font-size: 15px;
+            border-radius: 100%;
+            color: #FFF;
+          }
+          
+          .tooltip:before,
+          .tooltip:after {
+            position: absolute;
+            content: '';
+            opacity: 0;
+            transition: all 0.4s ease;
+          }
+          
+          .tooltip:before {
+            border-width: 10px 8px 0 8px;
+            border-style: solid;
+            border-color: $green transparent transparent transparent;
+            top: -15px;
+             transform: translateY(20px);
+          }
+          
+          .tooltip:after {
+            content: attr(data-tooltip);
+            background: $green;
+            width: 160px;
+            height: 40px;
+            font-size: 13px;
+            font-weight: 300;
+            top: -75px;
+            left: -10px;
+            padding: 10px;
+            border-radius: 5px;
+            letter-spacing: 1px;
+            transform: translateY(20px);
+          }
+          
+          .tooltip:hover::before,
+          .tooltip:hover::after {
+            opacity: 1;
+            transform: translateY(-2px);
+          }
+          
+          @keyframes shake {
+            0% { 
+              transform: rotate(2deg);
+            }
+            50% {
+             transform: rotate(-3deg);
+            }
+            70% {
+              transform: rotate(3deg);
+            }
+          
+            100% {
+              transform: rotate(0deg);
+            }
+          }
+          
+          #anim:hover {
+            animation: shake 500ms ease-in-out forwards;
+          }
+          
+          .bar {
+            position: absolute;
+            top: 10px;
+            left: 200px;
+            height: 25px;
+            width: 850px;
+            
+          }
+          
+          .emptybar {
+            padding-left: 10px;
+            background-color: #2e3033;
+            width: 15%;
+            height: 100%;
+          }
+          
+          .filledbar {
+            position: absolute;
+            top: 0px;
+            z-index: 3;
+            width: 0px;
+            height: 100%;
+            background: rgb(0,154,217);
+            background: linear-gradient(90deg, rgba(0,154,217,1) 0%, rgba(217,147,0,1) 65%, rgba(255,186,0,1) 100%);
+            transition: 3s ease-out;
+          }
+          
+          .card:hover .filledbar {
+            width: 130px;
+            transition: 0.4s ease-out;
+          }
+          
+          .circle {
+            position: absolute;
+            top: 150px;
+            left: calc(50% - 60px);
+          }
+          
+          .stroke {
+            stroke: white;
+            stroke-dasharray: 360;
+            stroke-dashoffset: 360;
+            transition: 0.6s ease-out;
+          }
+          
+          svg {
+            fill: #17141d;
+            stroke-width: 2px;
+          }
+          
+          .card:hover .stroke {
+            stroke-dashoffset: 100;
+            transition: 0.6s ease-out;
+          }
       </style>
 
 
@@ -75,23 +481,23 @@
         <!-- Aside -->
 
     
-        <div class="main-wrapper mdc-drawer-app-content">
+        <div class="main-wrapper mdc-drawer-app-content ">
             <!-- Top Navigation -->
             {% block TopNavigation %} {% include "pos/TopNavigation.html" %} {% endblock TopNavigation %}
             <!-- Top Navigation -->
 
-            <div class="page-wrapper mdc-toolbar-fixed-adjust">
+            <div class="page-wrapper mdc-toolbar-fixed-adjust radius-100">
                 
 
-                <main class="content-wrapper">
+                <main class="content-wrapper rounded-8">
                     {% if messages %}
                     <div class="mdc-layout-grid py-1">
-                        <div class="mdc-layout-grid__inner">
+                        <div class="mdc-layout-grid__inner ">
                             {% for message in messages %}
                             <div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
-                                <div class="alert alert-{{message.tags}} w-100 rounded-10 mb-0">
+                                <div class="bg-success alert alert-{{message.tags}} w-100 rounded-10 mb-0">
                                     <div class="d-flex w-100">
-                                        <div class="col-auto flex-shrink-1 flex-grow-1">{{ message }}</div>
+                                        <div class="text-light col-auto flex-shrink-1 flex-grow-1">{{ message }}</div>
                                         <div class="col-auto text-center">
                                             <button class="btn-close btn-sm text-sm" type="button" onclick="$(this).closest('.alert').remove()"></button>
                                         </div>
@@ -103,8 +509,8 @@
                         </div>
                     </div>
                     {% endif %}
-                    <div class="mdc-layout-grid">
-                        <div class="mdc-layout-grid__inner">
+                    <div class="mdc-layout-grid bg-dark">
+                        <div class="mdc-layout-grid__inner bg-dark">
                             
                             
                             {% block pageContent %} {% endblock pageContent %}
@@ -211,6 +617,15 @@
     <script src="{% static 'posAPP/assets/material-admin/js/dashboard.js' %}"></script>
     <script src="{% static 'posAPP/assets/select2/dist/js/select2.full.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
+integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
+crossorigin="anonymous"></script>
 </body>
 
+<script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.3.2.min.js"></script>
+<script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.3.2.min.js"></script>
+<script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.3.2.min.js"></script>
+<script src="https://cdn.bokeh.org/bokeh/release/bokeh-api-2.3.2.min.js"></script>
+{{script| safe}}
 </html>

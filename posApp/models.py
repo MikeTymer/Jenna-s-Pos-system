@@ -49,7 +49,7 @@ class Employee(models.Model):
     middlename = models.TextField(blank=True, null=True)
     lastname = models.TextField()
     gender = models.TextField(blank=True, null=True)
-    dob = models.DateField(blank=True, null=True)
+    dob = models.DateField(blank=True, null=True, help_text="Please use the following format: <em>YYYY-MM-DD</em>.")
     contact = models.TextField()
     address = models.TextField()
     email = models.TextField()
@@ -63,6 +63,7 @@ class Employee(models.Model):
 
     def __str__(self):
         return f"{self.firstname} {self.lastname}"
+    
 
     class Meta:
         verbose_name_plural = 'Employees'
@@ -103,13 +104,21 @@ class Products(models.Model):
         verbose_name_plural = 'Products'
         permissions = (("delete_product", "can delete any product"),)
         permissions = (("save_product", "can save a product"),)
+        
+    def admin_action(self, request, queryset):
+        actions = ["export_as_csv"]
 
+    def export_as_csv(self, request, queryset):
+        pass
+
+    export_as_csv.short_description = "Export Selected"
+    
     def __str__(self):
         return self.code + " - " + self.name 
 
 class ProductBulkUpload(models.Model):
     date_uploaded = models.DateTimeField(auto_now=True)
-    csv_file = models.FileField(upload_to="products")
+    csv_file = models.FileField(upload_to="Products")
         
 class Expences(models.Model):
     code = models.CharField(max_length=100)
@@ -155,3 +164,29 @@ class salesItems(models.Model):
     tcost = models.FloatField(null=True, default=0)
     qty = models.FloatField(default=0)
     total = models.FloatField(default=0)
+
+
+class SalesReport(models.Model):
+    date_added = models.DateTimeField(default=timezone.now) 
+    sales = models.ForeignKey(Sales,on_delete=models.CASCADE,default=0)
+    product = models.ForeignKey(Products,on_delete=models.CASCADE,default=0)
+
+class Damages(models.Model):
+    product_id = models.ForeignKey(Products, on_delete=models.CASCADE)
+    description = models.TextField()
+    image = models.ImageField(upload_to='static/damaged_product_images/', blank=True, null=True)  # New image field
+    quantity = models.IntegerField(default=0) 
+    date_added = models.DateTimeField(default=timezone.now) 
+    date_updated = models.DateTimeField(auto_now=True) 
+    
+    class Meta:
+        verbose_name_plural = 'Damages'
+        permissions = (("delete_Damage", "can delete any damage"),)
+        permissions = (("save_Damage", "can save a damage"),)
+
+    def __str__(self):
+        return str(self.product_id)
+    
+class DamageBulkUpload(models.Model):
+    date_uploaded = models.DateTimeField(auto_now=True)
+    csv_file = models.FileField(upload_to="Damages")

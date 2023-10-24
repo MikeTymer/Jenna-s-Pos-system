@@ -1,0 +1,123 @@
+{% extends "pos/base.html" %}
+{% load humanize %} {% block pageContent %}
+{% for product in products %}
+<div class="section-products mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet ">
+   
+		
+		<div class="mdc-card bg-dark text-white ">	
+				<div class="row ">
+						<!-- Single Product -->
+						{% if product.image %}
+									<div class="container-fluid form-group mb-3">
+										<label class="control-label">{{ product.name }}</label>
+											<div class="mb-2">
+												<img id="image-preview" src="{{ product.image.url }}" alt="Current Image" class="img-thumbnail" style="max-width: 200px;">
+											</div>
+									</div>
+									{% else %}
+									<div class="form-group mb-3">
+										<label class="control-label">Preview</label>
+										<div class="mb-2">
+											<img id="image-preview" src="#" alt="Preview Image" class="img-thumbnail" style="max-width: 200px; display: none;">
+										</div>
+									</div>
+									{% endif %}
+					<div class="card-inner ">
+						<div class="col-md-6 col-lg-4 col-xl-3">
+							
+								<div id="id" class="single-product">
+									
+										<div class="part-2">
+												<h4 class="product-title">{{ product.description }}</h4>
+												<h4 class="product-old-price">{{ product.price }}</h4>
+												<h4 class="product-price">{{ product.price }}</h4>
+										</div>
+								</div>
+						</div>
+					</div>	
+				</div>
+			
+	
+		</div>
+
+	</div>
+	{% endfor %}
+
+{% load admin_modify %}
+
+{% endblock pageContent %}
+<script>
+    $(function() {
+        $('#create_new').click(function() {
+            uni_modal("Add New Product", "{% url 'manage_products-page' %}")
+        })
+        $('.edit-data').click(function() {
+            uni_modal("Edit Product", "{% url 'manage_products-page' %}?id=" + $(this).attr('data-id'))
+        })
+        $('.delete-data').click(function() {
+            _conf("Are you sure to delete this Product?", "delete_product", [$(this).attr('data-id')])
+        })
+
+        $('#uni_modal').on('shown.bs.modal', function() {
+            $('#category_id').select2({
+                placeholder: "Please Select Category Here",
+                width: '100%',
+                dropdownParent: $('#uni_modal')
+            })
+        })
+        
+        $('.view-data').click(function() {
+            var imageUrl = $(this).data('url');
+            showImageWindow(imageUrl);
+        })
+    })
+
+    function delete_product($id) {
+        start_loader();
+        $.ajax({
+            headers: {
+                "X-CSRFToken": '{{csrf_token}}'
+            },
+            url: "{% url 'delete-product' %}",
+            method: "POST",
+            data: {
+                id: $id
+            },
+            dataType: "json",
+            error: err => {
+                console.log(err)
+                alert_toast("An error occured.", 'error');
+                end_loader();
+            },
+            success: function(resp) {
+                if (typeof resp == 'object' && resp.status == 'success') {
+                    location.reload();
+                } else {
+                    alert_toast("An error occured.", 'error');
+                    end_loader();
+                }
+            }
+        })
+    }
+
+    function showImageWindow(imageUrl) {
+        var head = $('head').clone();
+        var img = $('<img>').attr('src', imageUrl).css('max-width', '100%');
+        var body = $('<body>').css('background-color', 'unset').append(img);
+        var html = $('<html>').append(head).append(body);
+
+        var windowFeatures = 'width=800,height=400,left=300,top=200';
+        var printWindow = window.open('', '_blank', windowFeatures);
+        printWindow.document.open();
+        printWindow.document.write(html[0].outerHTML);
+        printWindow.document.close();
+
+        printWindow.onload = function() {
+            printWindow.print();
+            setTimeout(function() {
+                printWindow.close();
+            }, 8050);
+        };
+    }
+
+</script>

@@ -52,15 +52,41 @@ class CategoryFilter(django_filters.FilterSet):
     class Meta:
         model = Category
         fields = ['name' ]
+        
+from django import forms
 
 class ProductsFilter(django_filters.FilterSet):
     name = django_filters.CharFilter(lookup_expr='icontains')
     price = django_filters.NumberFilter(lookup_expr='gt')
+    quantity = django_filters.NumberFilter(lookup_expr='lt')
+    date_added = django_filters.NumberFilter(lookup_expr='month')
+
     
     class Meta:
         model = Products
-        fields = [ 'name', 'price' ]
-        
+        fields = [ 'name', 'price', 'quantity', 'date_added' ]
+
+
+class SalesFilter(django_filters.FilterSet):
+    name = django_filters.CharFilter(lookup_expr='icontains')
+    grand_total = django_filters.NumberFilter(lookup_expr='gt')
+    date_added = django_filters.NumberFilter(lookup_expr='month')
+    date_updated = django_filters.NumberFilter(lookup_expr='day')
+
+    class Meta:
+        model = Sales
+        fields = [ 'name', 'grand_total','date_added', 'date_updated' ]
+            
+    
+class DamagesFilter(django_filters.FilterSet):
+    produt_id = django_filters.CharFilter(lookup_expr='icontains')
+    quantity = django_filters.NumberFilter(lookup_expr='gt')
+    date_added = django_filters.NumberFilter(lookup_expr='month')
+    
+    class Meta:
+        model = Damages
+        fields = [ 'product_id', 'date_added']
+               
         
         
 class ExpencesFilter(django_filters.FilterSet):

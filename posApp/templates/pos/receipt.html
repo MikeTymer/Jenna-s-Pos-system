@@ -13,34 +13,37 @@
         <hr>
         <div class="lh-1">
             <div>
-                <span>Date:</span> {{ transaction.date_added|date:"M d Y" }} <br>
+                <span>Date:</span> {{ transaction.date_added|date:"d M Y" }} <br>
                 <span>Transaction Code:</span> {{ transaction.code }}
             </div>
         </div>
         <div class="clear-fix py-3"></div>
         <div class="lh-1">
-            {% for item in salesItems %}
+            
             <div class="d-flex w-100 align-items-end border-bottom">
                 
-                <div class="col-6 text-center fw-bold">Product</div>
+                <div class="col-6 text-left fw-bold">Product</div>
                 <div class="col-2 text-center fw-bold">Qty</div>
-                <div class="col-4 text-center fw-bold">Amount</div>
+                <div class="col-4 text-right fw-bold">Amount</div>
+                <hr>
+                <hr>
             </div>
-                      
+            {% for item in salesItems %}       
                 <div class="d-flex w-100 align-items-end">
                     
                     <div class="col-6 fw-bold">
                         <div class="lh-1">
                             
                         
-                            <small>{{ item.product_id }}</small><br>
+                            <small>{{ item.product_id.name }}</small><br>
                             
                         </div>
                     </div>
                    
                     <div class="col-2 text-center fw-bold">{{ item.qty|intcomma|floatformat:0 }}</div>
+                 
                     <div class="col-4 text-end fw-bold">{{ item.price|intcomma }}</div>
-                  
+                  <hr>
                 </div>
                 {% endfor %}
             <hr>

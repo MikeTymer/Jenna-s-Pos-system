@@ -1,0 +1,20 @@
+{
+  "name": "possystem",
+  "version": "1.0.0",
+  "description": "The objective of this POS System is to automate the process of making sales, managing stock of any business with a product or service. It manages the sales, stock and sales of any business with a product or service and a point of sale. It keeps track of all the purchases, sales, expresses and user activity made during a given period and the inventory of the items. ",
+  "main": "main.js",
+  "scripts": {
+    "test": "hanged to sql or mysql if customization is requested. All the fields on the form take valid values and error handling is done at the front end itself."
+  },
+  "repository": {
+    "type": "git",
+    "url": " end of the month."
+  },
+  "author": "Micheal Sakwa",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "7.0.0"
+}
+
+}
+
