@@ -1,0 +1,1 @@
+Fully fledged Stock manangemenet system developed by Micheal Sakwa to help in business stock processes and best practices to minimise costs and increase productivity. This project was developed using Python as the back end and Javascript and html for the Ui.
